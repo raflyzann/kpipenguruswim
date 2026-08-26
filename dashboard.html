@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Capaian KPI - Wahdah Islamiyah Makassar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Plus Jakarta Sans', 'sans-serif'],
+          arabic: ['Amiri', 'serif']
+        },
+        colors: {
+          wahdah: {
+            50:  '#eefaf4',
+            100: '#d6f1e2',
+            200: '#aee2c8',
+            300: '#7ccca9',
+            400: '#48ac83',
+            500: '#25906a',
+            600: '#177355',
+            700: '#145c46',
+            800: '#124a3a',
+            900: '#0e3a2e',
+            950: '#07211a'
+          },
+          gold: {
+            400: '#dcb96a',
+            500: '#c9a24b',
+            600: '#a9843a'
+          }
+        },
+        boxShadow: {
+          soft: '0 2px 10px -2px rgba(14,58,46,0.08), 0 8px 24px -8px rgba(14,58,46,0.10)',
+          softer: '0 1px 4px rgba(14,58,46,0.06)'
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  #sidebar { transition: transform 0.35s cubic-bezier(.4,0,.2,1), width 0.35s cubic-bezier(.4,0,.2,1); }
+  #mainArea { transition: margin-left 0.35s cubic-bezier(.4,0,.2,1); }
+
+  .view-fade { animation: viewFade 0.4s ease both; }
+  @keyframes viewFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #aee2c8; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .leaderboard-row:hover { background-color: #eefaf4; }
+
+  .rank-badge {
+    width: 28px; height: 28px; border-radius: 9999px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.75rem;
+  }
+
+  .jml-kegiatan-btn {
+    color: #145c46;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: #aee2c8;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .jml-kegiatan-btn:hover { color: #0e3a2e; }
+
+  .detail-jenis-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    background-color: #eefaf4;
+    color: #145c46;
+    border: 1px solid #d6f1e2;
+  }
+
+  .pattern-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+    background-size: 18px 18px;
+  }
+
+  .icon-badge{
+    width:58px;height:58px;
+    background:rgba(255,255,255,0.92);
+    border:2px solid #e6c65c;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    padding:5px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  .icon-badge img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+</style>
+</head>
+<body class="bg-wahdah-50/40 text-wahdah-950 min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside id="sidebar" class="fixed z-30 md:sticky md:top-0 w-72 -translate-x-full md:translate-x-0 h-screen bg-wahdah-800 text-white flex flex-col shadow-soft">
+    <div class="px-6 py-6 border-b border-white/10 flex items-center gap-3">
+      <div class="icon-badge">
+        <img src="data:image/png;base64,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" alt="Logo Wahdah Islamiyah" width="100%" height="100%">
+      </div>
+      <div>
+        <p class="font-bold leading-tight text-[15px]">Wahdah Islamiyah Makassar</p>
+        <p class="text-wahdah-200 text-xs">KPI Pengurus</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-1.5">
+      <p class="px-3 text-[11px] uppercase tracking-wider text-wahdah-300 font-semibold mb-2">Menu Utama</p>
+
+      <button type="button" id="navDashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white transition-colors">
+        <i class="fa-solid fa-chart-line w-5 text-center"></i>
+        <span>Dashboard Capaian KPI</span>
+      </button>
+
+      <button type="button" id="navRiwayat" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
+        <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
+        <span>Riwayat Inputan Data</span>
+      </button>
+    </nav>
+
+    <div class="px-6 py-5 border-t border-white/10 text-[11px] text-wahdah-300">
+      &copy; <span id="tahunFooter"></span> Wahdah Islamiyah Makassar
+    </div>
+  </aside>
+
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-20 hidden md:hidden"></div>
+
+  <!-- ============ MAIN AREA ============ -->
+  <div id="mainArea" class="flex-1 flex flex-col min-w-0">
+
+    <header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-wahdah-100 px-4 md:px-8 py-4 flex items-center gap-4 shadow-softer">
+      <button id="hamburgerBtn" class="w-10 h-10 rounded-lg hover:bg-wahdah-50 text-wahdah-700 flex items-center justify-center transition-colors">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+      <div>
+        <h1 id="pageTitle" class="font-bold text-wahdah-900 text-lg leading-tight">Dashboard Capaian KPI</h1>
+        <p id="pageSubtitle" class="text-wahdah-500 text-xs">Leaderboard & analitik kinerja pengurus</p>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-8">
+
+      <!-- Konten dashboard disembunyikan sampai login PIN berhasil -->
+      <section id="view-dashboard" class="hidden view-fade max-w-6xl mx-auto space-y-5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-5">
+            <p class="text-wahdah-500 text-xs font-medium mb-1">Total Pengurus Aktif</p>
+            <p id="statTotalPengurus" class="text-2xl font-bold text-wahdah-900">0</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-5">
+            <p class="text-wahdah-500 text-xs font-medium mb-1">Total Kegiatan Tercatat</p>
+            <p id="statTotalKegiatan" class="text-2xl font-bold text-wahdah-900">0</p>
+          </div>
+          <div class="bg-gradient-to-br from-wahdah-700 to-wahdah-900 rounded-2xl shadow-soft p-5 text-white pattern-bg">
+            <p class="text-wahdah-200 text-xs font-medium mb-1">Peraih Skor Tertinggi</p>
+            <p id="statTopPengurus" class="text-lg font-bold">-</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-5 md:p-6">
+          <div class="flex flex-col lg:flex-row lg:items-end gap-4 mb-5">
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Periode</label>
+              <select id="filterPeriode" class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none bg-white">
+                <option value="semua">Semua Data</option>
+                <option value="7hari">7 Hari Terakhir</option>
+                <option value="bulanini">Bulan Ini</option>
+                <option value="tahunini">Tahun Ini</option>
+                <option value="custom">Custom Tanggal</option>
+              </select>
+            </div>
+            <div id="customDateWrap" class="hidden flex-1 grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Mulai</label>
+                <input id="customStart" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Akhir</label>
+                <input id="customEnd" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Cari Nama</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wahdah-300 text-sm"></i>
+                <input id="searchLeaderboard" type="text" placeholder="Cari pengurus..." class="w-full rounded-xl border border-wahdah-200 pl-9 pr-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-wahdah-100">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-wahdah-50 text-wahdah-700 text-xs uppercase tracking-wide">
+                  <th class="text-left font-semibold px-4 py-3 w-14">Rank</th>
+                  <th class="text-left font-semibold px-4 py-3">Nama Pengurus</th>
+                  <th class="text-left font-semibold px-4 py-3">Departemen</th>
+                  <th class="text-center font-semibold px-4 py-3">Jml Kegiatan</th>
+                  <th class="text-right font-semibold px-4 py-3">Skor KPI</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody" class="divide-y divide-wahdah-50"></tbody>
+            </table>
+          </div>
+          <p id="emptyLeaderboard" class="hidden text-center text-wahdah-400 text-sm py-8">Belum ada data pada periode ini.</p>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: RIWAYAT INPUTAN DATA ============ -->
+      <section id="viewRiwayat" class="hidden view-fade max-w-6xl mx-auto">
+
+        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-4 md:p-6 mb-5">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1">Cari Nama</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wahdah-300 text-xs"></i>
+                <input id="riwayatSearchNama" type="text" placeholder="Ketik nama pengurus..." class="w-full rounded-xl border border-wahdah-200 pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1">Jenis Kegiatan</label>
+              <select id="riwayatFilterJenis" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+                <option value="">Semua jenis</option>
+                <option value="Rapat Rutin Departemen">Rapat Rutin Departemen</option>
+                <option value="Taklim Rutin">Taklim Rutin</option>
+                <option value="Kegiatan Event">Kegiatan Event</option>
+                <option value="Olahraga Rutin">Olahraga Rutin</option>
+                <option value="Pencapaian GSD">Pencapaian GSD</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1">Departemen</label>
+              <select id="riwayatFilterDept" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+                <option value="">Semua departemen</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1">Dari Tanggal</label>
+              <input id="riwayatFilterTglAwal" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1">Sampai Tanggal</label>
+              <input id="riwayatFilterTglAkhir" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+            </div>
+            <div class="flex items-end">
+              <button id="riwayatResetFilter" type="button" class="w-full flex items-center justify-center gap-2 bg-wahdah-50 hover:bg-wahdah-100 text-wahdah-700 font-medium text-sm rounded-xl px-4 py-2.5 transition-colors border border-wahdah-200">
+                <i class="fa-solid fa-rotate-left text-xs"></i> Reset Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-3.5 border-b border-wahdah-100">
+            <p class="text-sm text-wahdah-600">
+              <span id="riwayatTotalCount">0</span> data ditemukan
+            </p>
+            <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-wahdah-50/70 text-wahdah-700 text-xs uppercase tracking-wide">
+                  <th class="text-left font-semibold px-5 py-3 whitespace-nowrap">Nama</th>
+                  <th class="text-left font-semibold px-5 py-3 whitespace-nowrap">Departemen</th>
+                  <th class="text-left font-semibold px-5 py-3 whitespace-nowrap">Tanggal Kegiatan</th>
+                  <th class="text-left font-semibold px-5 py-3 whitespace-nowrap">Jenis Kegiatan</th>
+                  <th class="text-center font-semibold px-5 py-3 whitespace-nowrap">Detail</th>
+                </tr>
+              </thead>
+              <tbody id="riwayatTableBody" class="divide-y divide-wahdah-100">
+                <tr>
+                  <td colspan="5" class="text-center py-10 text-wahdah-400 text-sm">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data riwayat...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="riwayatPagination" class="flex items-center justify-between px-5 py-3.5 border-t border-wahdah-100 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- Ditampilkan selama belum login -->
+      <div id="lockedNotice" class="max-w-md mx-auto text-center py-16 text-wahdah-400">
+        <i class="fa-solid fa-lock text-3xl mb-3"></i>
+        <p class="text-sm">Masukkan User ID dan PIN admin untuk membuka dashboard.</p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ LOGIN MODAL (User ID + PIN) - otomatis terbuka saat halaman dimuat ============ -->
+<div id="pinModal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-wahdah-950/60 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-2xl shadow-soft w-full max-w-sm p-6 view-fade">
+    <div class="w-12 h-12 rounded-xl bg-wahdah-50 text-wahdah-700 flex items-center justify-center mb-4">
+      <i class="fa-solid fa-lock text-lg"></i>
+    </div>
+    <h3 class="font-bold text-wahdah-900 text-lg mb-1">Verifikasi Akses Dashboard</h3>
+    <p class="text-wahdah-500 text-sm mb-4">Masukkan User ID dan PIN admin untuk mengakses Dashboard Capaian KPI.</p>
+
+    <div class="mb-3">
+      <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">User ID</label>
+      <input id="userIdInput" type="text" autocomplete="off" placeholder="Masukkan User ID..." class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
+    </div>
+
+    <div class="mb-2">
+      <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">PIN</label>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" style="text-align:left; direction:ltr;" class="w-full text-left tracking-[0.3em] text-sm rounded-xl border border-wahdah-200 px-4 py-2.5 focus:ring-2 focus:ring-wahdah-400 outline-none">
+    </div>
+    <p id="pinError" class="hidden text-red-500 text-xs mb-2 text-center">User ID atau PIN salah. Silakan coba lagi.</p>
+    <div class="flex gap-2 mt-3">
+      <button id="pinCancelBtn" class="flex-1 rounded-xl border border-wahdah-200 text-wahdah-700 font-medium text-sm py-2.5 hover:bg-wahdah-50">Batal</button>
+      <button id="pinSubmitBtn" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL DETAIL KEGIATAN (per pengurus) ============ -->
+<div id="detailModal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-wahdah-950/60 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-2xl shadow-soft w-full max-w-md p-6 view-fade max-h-[85vh] flex flex-col">
+    <div class="flex items-start justify-between gap-3 mb-1">
+      <div class="min-w-0">
+        <h3 id="detailModalNama" class="font-bold text-wahdah-900 text-lg leading-tight truncate">Nama Pengurus</h3>
+        <p id="detailModalDept" class="text-wahdah-500 text-xs mt-0.5">Departemen</p>
+      </div>
+      <button id="detailModalCloseBtn" class="w-8 h-8 shrink-0 rounded-lg hover:bg-wahdah-50 text-wahdah-400 hover:text-wahdah-700 flex items-center justify-center transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <p class="text-wahdah-500 text-xs mb-4">Daftar kegiatan yang tercatat pada periode terpilih.</p>
+
+    <div id="detailModalRekap" class="flex flex-wrap gap-1.5 mb-4"></div>
+
+    <div id="detailModalList" class="space-y-2.5 overflow-y-auto pr-1 flex-1"></div>
+
+    <div class="mt-4 pt-4 border-t border-wahdah-100 flex items-center justify-between text-sm">
+      <span class="text-wahdah-500">Total Skor KPI</span>
+      <span id="detailModalTotalSkor" class="font-bold text-wahdah-900 text-base">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail Riwayat -->
+<div id="riwayatDetailModal" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50">
+  <div class="bg-white rounded-2xl shadow-soft max-w-md w-full max-h-[85vh] overflow-y-auto">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-wahdah-100 sticky top-0 bg-white">
+      <h3 class="font-bold text-wahdah-900 text-sm">Detail Laporan</h3>
+      <button id="riwayatDetailCloseBtn" type="button" class="w-8 h-8 rounded-lg hover:bg-wahdah-50 text-wahdah-500 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="riwayatDetailBody" class="px-5 py-4 space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden fixed bottom-5 right-5 z-50 max-w-xs bg-wahdah-900 text-white text-sm rounded-xl shadow-soft px-4 py-3 items-start gap-2"></div>
+
+<script>
+/* ==========================================================
+   0. KONFIGURASI - GANTI URL INI DENGAN WEB APP URL APPS SCRIPT
+   Sama persis dengan yang dipakai di index.html - kedua file
+   HARUS memakai SCRIPT_URL yang sama karena keduanya memanggil
+   backend (Code.gs) yang sama.
+   ========================================================== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywSRVwB6NjTqzGIPWp8ehKAl4yRLzI0msI4ohEsw4SJJKNeI_NocSo5oHPzdWolf1v/exec';
+
+const IS_CONFIGURED = typeof SCRIPT_URL === 'string' && SCRIPT_URL.indexOf('https://script.google.com') === 0;
+
+async function gsCall(fnName, ...args) {
+  if (!IS_CONFIGURED) {
+    return LOCAL_FALLBACK[fnName](...args);
+  }
+  let res;
+  try {
+    res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fnName, args: args })
+    });
+  } catch (networkErr) {
+    throw new Error('Tidak bisa menghubungi server. Periksa koneksi internet atau SCRIPT_URL.');
+  }
+  if (!res.ok) {
+    throw new Error('Server merespons dengan status ' + res.status + '.');
+  }
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(data.message || 'Terjadi kesalahan pada server.');
+  }
+  return data.result;
+}
+
+/* ==========================================================
+   1. DUMMY DATA (fallback lokal jika SCRIPT_URL belum diisi)
+   ========================================================== */
+const DUMMY_PENGURUS = [
+  { nama: 'Ahmad Fauzi', departemen: 'Departemen Dakwah' },
+  { nama: 'Muhammad Rizal', departemen: 'Departemen Dakwah' },
+  { nama: 'Abdullah Hakim', departemen: 'Departemen Pendidikan' },
+  { nama: 'Ilham Maulana', departemen: 'Departemen Pendidikan' },
+  { nama: 'Sultan Baharuddin', departemen: 'Departemen Sosial' },
+  { nama: 'Rahmat Hidayat', departemen: 'Departemen Sosial' },
+  { nama: 'Fajar Nur Ikhsan', departemen: 'Departemen Ekonomi' },
+  { nama: 'Andi Muh. Yusuf', departemen: 'Departemen Ekonomi' },
+  { nama: 'Zulkifli Amir', departemen: 'Departemen Kaderisasi' },
+  { nama: 'Hasanuddin Rahman', departemen: 'Departemen Kaderisasi' },
+  { nama: 'Muh. Iqbal Saputra', departemen: 'Departemen Humas' },
+  { nama: 'Wahyu Ramadhan', departemen: 'Departemen Humas' },
+  { nama: 'Taufik Akbar', departemen: 'Departemen Dakwah' },
+  { nama: 'Syamsul Bahri', departemen: 'Departemen Pendidikan' },
+  { nama: 'Arfan Nugraha', departemen: 'Departemen Sosial' },
+  { nama: 'Muh. Alif Pratama', departemen: 'Departemen Ekonomi' },
+  { nama: 'Reza Aditya', departemen: 'Departemen Kaderisasi' },
+  { nama: 'Yusril Firmansyah', departemen: 'Departemen Humas' }
+];
+
+const KPI_SCORE_MAP = {
+  'Rapat Rutin Departemen': 5,
+  'Taklim Rutin': 5,
+  'Kegiatan Event': 10,
+  'Olahraga Rutin': 5,
+  'Pencapaian GSD': 15
+};
+
+const DUMMY_ADMIN = [
+  { userId: 'admin', pin: '654321' }
+];
+
+let DUMMY_TRANSAKSI = [];
+(function seedDummyTransaksi() {
+  const now = Date.now();
+  const jenisList = Object.keys(KPI_SCORE_MAP);
+  DUMMY_PENGURUS.forEach((p, idx) => {
+    const jumlah = 2 + (idx % 4);
+    for (let i = 0; i < jumlah; i++) {
+      const jenis = jenisList[(idx + i) % jenisList.length];
+      const daysAgo = Math.floor(Math.random() * 300);
+      DUMMY_TRANSAKSI.push({
+        timestamp: new Date(now - daysAgo * 86400000),
+        jenis, nama: p.nama, departemen: p.departemen,
+        skor: KPI_SCORE_MAP[jenis]
+      });
+    }
+  });
+})();
+
+function formatTanggalTampilLocal(d) {
+  if (!d) return '-';
+  const dd = ('0' + d.getDate()).slice(-2);
+  const mm = ('0' + (d.getMonth() + 1)).slice(-2);
+  const yyyy = d.getFullYear();
+  return dd + '/' + mm + '/' + yyyy;
+}
+
+const LOCAL_FALLBACK = {
+  validateAdminLogin: (userId, pin) => DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin),
+  getDashboardData: (userId, pin, filterType, startDateStr, endDateStr) => {
+    if (!DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin)) {
+      return { success: false, message: 'User ID atau PIN salah.' };
+    }
+    const now = new Date();
+    let start, end;
+    if (filterType === '7hari') { start = new Date(now); start.setDate(now.getDate() - 7); end = now; }
+    else if (filterType === 'bulanini') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = now; }
+    else if (filterType === 'tahunini') { start = new Date(now.getFullYear(), 0, 1); end = now; }
+    else if (filterType === 'custom' && startDateStr && endDateStr) { start = new Date(startDateStr); end = new Date(endDateStr); end.setHours(23,59,59,999); }
+    else { start = new Date(0); end = now; }
+
+    const rekap = {};
+    DUMMY_TRANSAKSI.forEach(row => {
+      if (row.timestamp >= start && row.timestamp <= end) {
+        if (!rekap[row.nama]) rekap[row.nama] = { nama: row.nama, departemenSet: {}, totalSkor: 0, jumlahKegiatan: 0, detail: [] };
+        if (row.departemen) rekap[row.nama].departemenSet[row.departemen] = true;
+        rekap[row.nama].totalSkor += row.skor;
+        rekap[row.nama].jumlahKegiatan += 1;
+        rekap[row.nama].detail.push({
+          jenis: row.jenis,
+          tanggal: formatTanggalTampilLocal(row.timestamp),
+          skor: row.skor,
+          timestamp: row.timestamp.getTime()
+        });
+      }
+    });
+    const leaderboard = Object.values(rekap)
+      .map(r => {
+        r.detail.sort((a, b) => b.timestamp - a.timestamp);
+        r.departemen = Object.keys(r.departemenSet).join(', ');
+        delete r.departemenSet;
+        return r;
+      })
+      .sort((a, b) => b.totalSkor - a.totalSkor);
+    return { success: true, leaderboard };
+  }
+};
+
+/* ==========================================================
+   2. STATE
+   ========================================================== */
+const state = {
+  dashboardUnlocked: false,
+  adminUserId: null,
+  adminPin: null
+};
+
+document.getElementById('tahunFooter').textContent = new Date().getFullYear();
+if (!IS_CONFIGURED) {
+  // Toast dipanggil setelah fungsi showToast dideklarasikan di bawah,
+  // jadi cukup ditandai lewat variabel dan ditampilkan setelah DOM siap.
+  window.addEventListener('DOMContentLoaded', () => showToast('SCRIPT_URL belum diisi - menampilkan data contoh (mode preview).', 'error'));
+}
+
+/* ==========================================================
+   3. SIDEBAR TOGGLE
+   ========================================================== */
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+function openSidebarMobile() {
+  sidebar.classList.remove('-translate-x-full');
+  overlay.classList.remove('hidden');
+}
+function closeSidebarMobile() {
+  sidebar.classList.add('-translate-x-full');
+  overlay.classList.add('hidden');
+}
+hamburgerBtn.addEventListener('click', () => {
+  if (window.innerWidth < 768) {
+    sidebar.classList.contains('-translate-x-full') ? openSidebarMobile() : closeSidebarMobile();
+  } else {
+    sidebar.classList.toggle('w-72');
+    sidebar.classList.toggle('w-0');
+    sidebar.classList.toggle('overflow-hidden');
+  }
+});
+overlay.addEventListener('click', closeSidebarMobile);
+
+/* ==========================================================
+   3b. NAVIGASI ANTAR VIEW (Dashboard Capaian KPI <-> Riwayat Inputan Data)
+   Hanya bisa diakses SETELAH login PIN berhasil - sebelum itu sidebar
+   tertutup total oleh modal PIN (z-40) yang berada di atas sidebar (z-30).
+   ========================================================== */
+const navDashboard = document.getElementById('navDashboard');
+const navRiwayat = document.getElementById('navRiwayat');
+const viewDashboardSection = document.getElementById('view-dashboard');
+const viewRiwayatSection = document.getElementById('viewRiwayat');
+const pageTitle = document.getElementById('pageTitle');
+const pageSubtitle = document.getElementById('pageSubtitle');
+
+function setActiveNav(activeBtn) {
+  [navDashboard, navRiwayat].forEach(btn => {
+    btn.classList.remove('bg-white/10', 'text-white');
+    btn.classList.add('text-wahdah-100');
+  });
+  activeBtn.classList.add('bg-white/10', 'text-white');
+  activeBtn.classList.remove('text-wahdah-100');
+}
+
+function goToView(view) {
+  // Navigasi hanya efektif setelah login berhasil. lockedNotice tetap
+  // ditangani terpisah oleh alur PIN modal (lihat submitPin()).
+  if (!state.dashboardUnlocked) return;
+
+  if (view === 'riwayat') {
+    viewDashboardSection.classList.add('hidden');
+    viewRiwayatSection.classList.remove('hidden');
+    viewRiwayatSection.classList.remove('view-fade'); void viewRiwayatSection.offsetWidth; viewRiwayatSection.classList.add('view-fade');
+    pageTitle.textContent = 'Riwayat Inputan Data';
+    pageSubtitle.textContent = 'Daftar seluruh laporan keaktifan/pencapaian pengurus';
+    setActiveNav(navRiwayat);
+    if (!riwayatState.loaded) loadRiwayat();
+    if (window.innerWidth < 768) closeSidebarMobile();
+  } else {
+    viewRiwayatSection.classList.add('hidden');
+    viewDashboardSection.classList.remove('hidden');
+    viewDashboardSection.classList.remove('view-fade'); void viewDashboardSection.offsetWidth; viewDashboardSection.classList.add('view-fade');
+    pageTitle.textContent = 'Dashboard Capaian KPI';
+    pageSubtitle.textContent = 'Leaderboard & analitik kinerja pengurus';
+    setActiveNav(navDashboard);
+    if (window.innerWidth < 768) closeSidebarMobile();
+  }
+}
+
+navDashboard.addEventListener('click', () => goToView('dashboard'));
+navRiwayat.addEventListener('click', () => goToView('riwayat'));
+
+/* ==========================================================
+   4. LOGIN MODAL (User ID + PIN) - terbuka otomatis saat halaman dimuat
+   ========================================================== */
+const pinModal = document.getElementById('pinModal');
+const userIdInput = document.getElementById('userIdInput');
+const pinInput = document.getElementById('pinInput');
+const pinError = document.getElementById('pinError');
+const viewDashboard = document.getElementById('view-dashboard');
+const lockedNotice = document.getElementById('lockedNotice');
+
+function openPinModal() {
+  pinModal.classList.remove('hidden');
+  pinModal.classList.add('flex');
+  userIdInput.value = '';
+  pinInput.value = '';
+  pinError.classList.add('hidden');
+  setTimeout(() => userIdInput.focus(), 100);
+}
+function closePinModal() {
+  pinModal.classList.add('hidden');
+  pinModal.classList.remove('flex');
+}
+
+// Batal login -> kembali ke halaman Form (file terpisah)
+document.getElementById('pinCancelBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+
+document.getElementById('pinSubmitBtn').addEventListener('click', submitPin);
+userIdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') pinInput.focus(); });
+pinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPin(); });
+
+async function submitPin() {
+  const userId = userIdInput.value.trim();
+  const pin = pinInput.value.trim();
+
+  if (!userId || !pin) {
+    pinError.textContent = 'User ID dan PIN wajib diisi.';
+    pinError.classList.remove('hidden');
+    return;
+  }
+
+  let valid = false;
+  try {
+    valid = await gsCall('validateAdminLogin', userId, pin);
+  } catch (err) {
+    showToast('Gagal memverifikasi login: ' + err.message, 'error');
+    return;
+  }
+  if (valid) {
+    state.dashboardUnlocked = true;
+    state.adminUserId = userId;
+    state.adminPin = pin;
+    closePinModal();
+    lockedNotice.classList.add('hidden');
+    viewDashboard.classList.remove('hidden');
+    viewDashboard.classList.remove('view-fade'); void viewDashboard.offsetWidth; viewDashboard.classList.add('view-fade');
+    setActiveNav(navDashboard);
+    renderDashboard();
+    // Daftar departemen dimuat di background untuk mengisi filter di tab
+    // Riwayat, supaya saat tab tsb pertama kali diklik filternya sudah siap.
+    gsCall('getDepartemenList').then(populateRiwayatDeptFilter).catch(() => {});
+  } else {
+    pinError.textContent = 'User ID atau PIN salah. Silakan coba lagi.';
+    pinError.classList.remove('hidden');
+    pinInput.value = '';
+    pinInput.focus();
+  }
+}
+
+// Buka modal login otomatis begitu halaman dimuat, karena dashboard.html
+// selalu mulai dalam kondisi terkunci.
+openPinModal();
+
+/* ==========================================================
+   5. DASHBOARD - FILTER & LEADERBOARD
+   ========================================================== */
+const filterPeriode = document.getElementById('filterPeriode');
+const customDateWrap = document.getElementById('customDateWrap');
+const customStart = document.getElementById('customStart');
+const customEnd = document.getElementById('customEnd');
+const searchLeaderboard = document.getElementById('searchLeaderboard');
+const leaderboardBody = document.getElementById('leaderboardBody');
+const emptyLeaderboard = document.getElementById('emptyLeaderboard');
+
+let currentLeaderboard = [];
+let currentFilteredLeaderboard = [];
+
+filterPeriode.addEventListener('change', () => {
+  customDateWrap.classList.toggle('hidden', filterPeriode.value !== 'custom');
+  renderDashboard();
+});
+customStart.addEventListener('change', renderDashboard);
+customEnd.addEventListener('change', renderDashboard);
+searchLeaderboard.addEventListener('input', renderLeaderboardTable);
+
+async function renderDashboard() {
+  if (!state.dashboardUnlocked || !state.adminUserId || !state.adminPin) {
+    return;
+  }
+  const filterType = filterPeriode.value;
+  let res;
+  try {
+    res = await gsCall('getDashboardData', state.adminUserId, state.adminPin, filterType, customStart.value, customEnd.value);
+  } catch (err) {
+    showToast('Gagal memuat dashboard: ' + err.message, 'error');
+    return;
+  }
+  if (!res.success) {
+    showToast(res.message || 'Gagal memuat dashboard.', 'error');
+    // Kalau sesi ternyata tidak valid lagi (mis. akun dihapus dari
+    // sheet Admin), kembalikan ke kondisi terkunci & minta login ulang.
+    state.dashboardUnlocked = false;
+    state.adminUserId = null;
+    state.adminPin = null;
+    viewDashboard.classList.add('hidden');
+    lockedNotice.classList.remove('hidden');
+    openPinModal();
+    return;
+  }
+  currentLeaderboard = res.leaderboard;
+  renderLeaderboardTable();
+  renderStats();
+}
+
+function renderStats() {
+  document.getElementById('statTotalPengurus').textContent = currentLeaderboard.length;
+  const totalKegiatan = currentLeaderboard.reduce((sum, r) => sum + r.jumlahKegiatan, 0);
+  document.getElementById('statTotalKegiatan').textContent = totalKegiatan;
+  document.getElementById('statTopPengurus').textContent = currentLeaderboard[0] ? currentLeaderboard[0].nama : '-';
+}
+
+function rankBadgeClasses(rank) {
+  if (rank === 1) return 'bg-gold-500 text-white';
+  if (rank === 2) return 'bg-wahdah-300 text-wahdah-900';
+  if (rank === 3) return 'bg-wahdah-200 text-wahdah-800';
+  return 'bg-wahdah-50 text-wahdah-500';
+}
+
+function renderLeaderboardTable() {
+  const q = searchLeaderboard.value.trim().toLowerCase();
+  const filtered = currentLeaderboard.filter(r => r.nama.toLowerCase().includes(q));
+  currentFilteredLeaderboard = filtered;
+
+  if (filtered.length === 0) {
+    leaderboardBody.innerHTML = '';
+    emptyLeaderboard.classList.remove('hidden');
+    return;
+  }
+  emptyLeaderboard.classList.add('hidden');
+
+  leaderboardBody.innerHTML = filtered.map((r, i) => {
+    const rank = i + 1;
+    return `<tr class="leaderboard-row transition-colors">
+      <td class="px-4 py-3"><span class="rank-badge ${rankBadgeClasses(rank)}">${rank}</span></td>
+      <td class="px-4 py-3 font-medium text-wahdah-900">${r.nama}</td>
+      <td class="px-4 py-3 text-wahdah-500">${r.departemen}</td>
+      <td class="px-4 py-3 text-center">
+        <button type="button" class="jml-kegiatan-btn detail-kegiatan-btn" data-idx="${i}" title="Lihat rincian kegiatan">
+          ${r.jumlahKegiatan}
+        </button>
+      </td>
+      <td class="px-4 py-3 text-right font-bold text-wahdah-800">${r.totalSkor}</td>
+    </tr>`;
+  }).join('');
+}
+
+leaderboardBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('.detail-kegiatan-btn');
+  if (!btn) return;
+  const idx = Number(btn.dataset.idx);
+  const person = currentFilteredLeaderboard[idx];
+  if (person) openDetailModal(person);
+});
+
+/* ==========================================================
+   6. MODAL DETAIL KEGIATAN PER PENGURUS
+   ========================================================== */
+const detailModal = document.getElementById('detailModal');
+const detailModalNama = document.getElementById('detailModalNama');
+const detailModalDept = document.getElementById('detailModalDept');
+const detailModalRekap = document.getElementById('detailModalRekap');
+const detailModalList = document.getElementById('detailModalList');
+const detailModalTotalSkor = document.getElementById('detailModalTotalSkor');
+const detailModalCloseBtn = document.getElementById('detailModalCloseBtn');
+
+function hitungRekapJenisKegiatan(detail) {
+  const counts = {};
+  detail.forEach(function (d) {
+    counts[d.jenis] = (counts[d.jenis] || 0) + 1;
+  });
+  return Object.keys(counts)
+    .map(function (jenis) { return { jenis: jenis, jumlah: counts[jenis] }; })
+    .sort(function (a, b) { return b.jumlah - a.jumlah; });
+}
+
+function openDetailModal(person) {
+  detailModalNama.textContent = person.nama;
+  detailModalDept.textContent = person.departemen;
+  detailModalTotalSkor.textContent = person.totalSkor;
+
+  const detail = person.detail || [];
+
+  if (detail.length === 0) {
+    detailModalRekap.innerHTML = '';
+  } else {
+    const rekapJenis = hitungRekapJenisKegiatan(detail);
+    detailModalRekap.innerHTML = rekapJenis.map(function (r) {
+      return `<span class="detail-jenis-badge">${r.jenis} <span class="font-bold">${r.jumlah}x</span></span>`;
+    }).join('');
+  }
+
+  if (detail.length === 0) {
+    detailModalList.innerHTML = '<p class="text-wahdah-400 text-sm text-center py-6">Belum ada rincian kegiatan.</p>';
+  } else {
+    detailModalList.innerHTML = detail.map(d =>
+      `<div class="flex items-start justify-between gap-3 bg-wahdah-50/60 border border-wahdah-100 rounded-xl px-3.5 py-2.5">
+         <div class="min-w-0">
+           <span class="detail-jenis-badge"><i class="fa-solid fa-check text-[10px]"></i>${d.jenis}</span>
+           <p class="text-wahdah-500 text-xs mt-1.5">
+             <i class="fa-regular fa-calendar mr-1"></i>${d.tanggal}
+           </p>
+         </div>
+         <span class="shrink-0 text-wahdah-700 font-bold text-sm">+${d.skor}</span>
+       </div>`
+    ).join('');
+  }
+
+  detailModal.classList.remove('hidden');
+  detailModal.classList.add('flex');
+}
+
+function closeDetailModal() {
+  detailModal.classList.add('hidden');
+  detailModal.classList.remove('flex');
+}
+
+detailModalCloseBtn.addEventListener('click', closeDetailModal);
+detailModal.addEventListener('click', (e) => {
+  if (e.target === detailModal) closeDetailModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !detailModal.classList.contains('hidden')) closeDetailModal();
+});
+
+/* ==========================================================
+   7. RIWAYAT INPUTAN DATA
+   Tidak memerlukan login PIN terpisah (getRiwayatLaporan() di Code.gs
+   memang sengaja dibuat terbuka, sesuai catatan di Code.gs) - tab ini
+   hanya bisa dijangkau setelah berhasil melewati modal PIN karena
+   sidebar tertutup modal tsb, bukan karena datanya sendiri butuh
+   kredensial.
+   ========================================================== */
+const riwayatState = {
+  data: [],
+  filtered: [],
+  page: 1,
+  pageSize: 20,
+  loaded: false
+};
+
+const riwayatSearchNama = document.getElementById('riwayatSearchNama');
+const riwayatFilterJenis = document.getElementById('riwayatFilterJenis');
+const riwayatFilterDept = document.getElementById('riwayatFilterDept');
+const riwayatFilterTglAwal = document.getElementById('riwayatFilterTglAwal');
+const riwayatFilterTglAkhir = document.getElementById('riwayatFilterTglAkhir');
+const riwayatResetFilter = document.getElementById('riwayatResetFilter');
+const riwayatRefreshBtn = document.getElementById('riwayatRefreshBtn');
+const riwayatTableBody = document.getElementById('riwayatTableBody');
+const riwayatTotalCount = document.getElementById('riwayatTotalCount');
+const riwayatPagination = document.getElementById('riwayatPagination');
+const riwayatDetailModal = document.getElementById('riwayatDetailModal');
+const riwayatDetailBody = document.getElementById('riwayatDetailBody');
+const riwayatDetailCloseBtn = document.getElementById('riwayatDetailCloseBtn');
+
+function populateRiwayatDeptFilter(departemenList) {
+  riwayatFilterDept.innerHTML = '<option value="">Semua departemen</option>' +
+    (departemenList || []).map(d => `<option value="${d}">${d}</option>`).join('');
+}
+
+/**
+ * Backend (Code.gs) mengirim SATU field gabungan "linkLampiran" (isi
+ * bisa 0, 1, atau 2 URL dipisah " | " - lihat submitLaporan() &
+ * getRiwayatLaporan() di Code.gs, karena di Spreadsheet memang cuma
+ * ada 1 kolom "Link Lampiran"). Urutan penulisannya SELALU: foto
+ * kegiatan dulu, baru file hasil rapat (khusus Rapat Rutin
+ * Departemen) - lihat urutan push() di submitLaporan(). Fungsi ini
+ * memecahnya jadi 2 field terpisah supaya modal Detail bisa
+ * menampilkan 2 tombol berbeda untuk Rapat Rutin. Sama persis dengan
+ * versi di index.html.
+ */
+function parseLinkLampiran_(row) {
+  const raw = (row.linkLampiran || '').trim();
+  const parts = raw ? raw.split('|').map(s => s.trim()).filter(Boolean) : [];
+  if (row.jenis === 'Rapat Rutin Departemen') {
+    row.linkFotoKegiatan = parts[0] || '';
+    row.linkFileHasilRapat = parts[1] || '';
+  } else {
+    row.linkFotoKegiatan = parts[0] || '';
+    row.linkFileHasilRapat = '';
+  }
+  return row;
+}
+
+async function loadRiwayat() {
+  riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data riwayat...</td></tr>`;
+  try {
+    const rawData = await gsCall('getRiwayatLaporan');
+    riwayatState.data = rawData.map(parseLinkLampiran_);
+    riwayatState.loaded = true;
+    riwayatState.page = 1;
+    applyRiwayatFilter();
+  } catch (err) {
+    riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500 text-sm">Gagal memuat data: ${err.message}</td></tr>`;
+    showToast('Gagal memuat riwayat: ' + err.message, 'error');
+  }
+}
+
+function applyRiwayatFilter() {
+  const q = riwayatSearchNama.value.trim().toLowerCase();
+  const jenis = riwayatFilterJenis.value;
+  const dept = riwayatFilterDept.value;
+  const tglAwal = riwayatFilterTglAwal.value;
+  const tglAkhir = riwayatFilterTglAkhir.value;
+
+  // Urutan mengikuti baris spreadsheet yang dibalik: baris terakhir di sheet
+  // (input terbaru) tampil paling atas. TIDAK di-sort berdasarkan tanggal
+  // kegiatan, karena tanggal kegiatan bisa saja diisi mundur/tidak berurutan
+  // dengan waktu input sebenarnya.
+  riwayatState.filtered = riwayatState.data.filter(row => {
+    if (q && !(row.nama || '').toLowerCase().includes(q)) return false;
+    if (jenis && row.jenis !== jenis) return false;
+    if (dept && row.departemen !== dept) return false;
+    if (tglAwal && row.tanggalKegiatan && row.tanggalKegiatan < tglAwal) return false;
+    if (tglAkhir && row.tanggalKegiatan && row.tanggalKegiatan > tglAkhir) return false;
+    return true;
+  }).reverse();
+
+  riwayatState.page = 1;
+  renderRiwayatTable();
+}
+
+[riwayatSearchNama, riwayatFilterJenis, riwayatFilterDept, riwayatFilterTglAwal, riwayatFilterTglAkhir].forEach(el => {
+  const evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+  el.addEventListener(evt, applyRiwayatFilter);
+});
+
+riwayatResetFilter.addEventListener('click', () => {
+  riwayatSearchNama.value = '';
+  riwayatFilterJenis.value = '';
+  riwayatFilterDept.value = '';
+  riwayatFilterTglAwal.value = '';
+  riwayatFilterTglAkhir.value = '';
+  applyRiwayatFilter();
+});
+
+riwayatRefreshBtn.addEventListener('click', () => {
+  riwayatState.loaded = false;
+  loadRiwayat();
+});
+
+function formatTanggalIndo(tgl) {
+  if (!tgl) return '-';
+  const d = new Date(tgl);
+  if (isNaN(d.getTime())) return tgl;
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+const JENIS_BADGE_COLOR = {
+  'Rapat Rutin Departemen': 'bg-wahdah-100 text-wahdah-700',
+  'Taklim Rutin': 'bg-gold-400/20 text-gold-600',
+  'Kegiatan Event': 'bg-purple-100 text-purple-700',
+  'Olahraga Rutin': 'bg-blue-100 text-blue-700',
+  'Pencapaian GSD': 'bg-emerald-100 text-emerald-700'
+};
+
+function renderRiwayatTable() {
+  const totalRows = riwayatState.filtered.length;
+  riwayatTotalCount.textContent = totalRows;
+
+  if (totalRows === 0) {
+    riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-wahdah-400 text-sm">Tidak ada data yang cocok dengan filter.</td></tr>`;
+    riwayatPagination.innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalRows / riwayatState.pageSize));
+  if (riwayatState.page > totalPages) riwayatState.page = totalPages;
+  const start = (riwayatState.page - 1) * riwayatState.pageSize;
+  const pageRows = riwayatState.filtered.slice(start, start + riwayatState.pageSize);
+
+  riwayatTableBody.innerHTML = pageRows.map((row, idx) => {
+    const badgeColor = JENIS_BADGE_COLOR[row.jenis] || 'bg-wahdah-100 text-wahdah-700';
+    const rowIndex = start + idx;
+    return `
+      <tr class="hover:bg-wahdah-50/40 transition-colors">
+        <td class="px-5 py-3 whitespace-nowrap font-medium text-wahdah-900">${row.nama || '-'}</td>
+        <td class="px-5 py-3 whitespace-nowrap text-wahdah-600">${row.departemen || '-'}</td>
+        <td class="px-5 py-3 whitespace-nowrap text-wahdah-700">${formatTanggalIndo(row.tanggalKegiatan)}</td>
+        <td class="px-5 py-3 whitespace-nowrap">
+          <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-medium ${badgeColor}">${row.jenis}</span>
+        </td>
+        <td class="px-5 py-3 text-center">
+          <button type="button" class="riwayat-detail-btn inline-flex w-8 h-8 items-center justify-center rounded-lg text-wahdah-600 hover:bg-wahdah-100 transition-colors" data-idx="${rowIndex}" title="Lihat detail">
+            <i class="fa-solid fa-circle-info"></i>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  renderRiwayatPagination(totalPages);
+}
+
+function renderRiwayatPagination(totalPages) {
+  if (totalPages <= 1) { riwayatPagination.innerHTML = `<span class="text-wahdah-400 text-xs">Halaman 1 dari 1</span>`; return; }
+  riwayatPagination.innerHTML = `
+    <span class="text-wahdah-500 text-xs">Halaman ${riwayatState.page} dari ${totalPages}</span>
+    <div class="flex items-center gap-2">
+      <button type="button" id="riwayatPrevBtn" class="w-8 h-8 rounded-lg border border-wahdah-200 text-wahdah-600 hover:bg-wahdah-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center" ${riwayatState.page <= 1 ? 'disabled' : ''}>
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </button>
+      <button type="button" id="riwayatNextBtn" class="w-8 h-8 rounded-lg border border-wahdah-200 text-wahdah-600 hover:bg-wahdah-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center" ${riwayatState.page >= totalPages ? 'disabled' : ''}>
+        <i class="fa-solid fa-chevron-right text-xs"></i>
+      </button>
+    </div>`;
+
+  document.getElementById('riwayatPrevBtn')?.addEventListener('click', () => { riwayatState.page--; renderRiwayatTable(); });
+  document.getElementById('riwayatNextBtn')?.addEventListener('click', () => { riwayatState.page++; renderRiwayatTable(); });
+}
+
+riwayatTableBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('.riwayat-detail-btn');
+  if (!btn) return;
+  const row = riwayatState.filtered[parseInt(btn.dataset.idx, 10)];
+  if (!row) return;
+  openRiwayatDetail(row);
+});
+
+function attachmentButtonHtml(link, label) {
+  if (!link) return '';
+  return `
+    <a href="${link}" target="_blank" rel="noopener" class="mt-2 flex items-center justify-center gap-2 bg-wahdah-50 hover:bg-wahdah-100 text-wahdah-700 font-medium text-sm rounded-xl px-4 py-2.5 transition-colors border border-wahdah-200">
+      <i class="fa-solid fa-eye"></i> ${label}
+    </a>`;
+}
+
+function openRiwayatDetail(row) {
+  const detail = row.detail || {};
+  const rows = [
+    ['Tanggal Kegiatan', formatTanggalIndo(row.tanggalKegiatan)],
+    ['Jenis Kegiatan', row.jenis],
+    ['Nama', row.nama || '-'],
+    ['Departemen', row.departemen || '-'],
+    ['Status', row.status || '-'],
+    ...Object.entries(detail).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ['Poin KPI', row.skor !== undefined ? `+${row.skor}` : '-']
+  ];
+
+  // Rapat Rutin Departemen punya 2 lampiran terpisah (foto kegiatan + file
+  // hasil rapat/notulen), sehingga ditampilkan sebagai 2 tombol berbeda.
+  // Jenis kegiatan lain hanya punya 1 lampiran foto kegiatan.
+  let attachmentButtons = '';
+  if (row.jenis === 'Rapat Rutin Departemen') {
+    attachmentButtons =
+      attachmentButtonHtml(row.linkFotoKegiatan, 'Lihat Foto Kegiatan') +
+      attachmentButtonHtml(row.linkFileHasilRapat, 'Lihat File Hasil Rapat');
+  } else {
+    attachmentButtons = attachmentButtonHtml(row.linkFotoKegiatan, 'Lihat Foto Kegiatan');
+  }
+
+  riwayatDetailBody.innerHTML = rows.map(([label, val]) => `
+    <div class="flex justify-between gap-4 border-b border-wahdah-50 pb-2 last:border-0">
+      <span class="text-wahdah-500 font-medium">${label}</span>
+      <span class="text-wahdah-900 text-right">${val}</span>
+    </div>`).join('') + attachmentButtons;
+
+  riwayatDetailModal.classList.remove('hidden');
+  riwayatDetailModal.classList.add('flex');
+}
+
+function closeRiwayatDetail() {
+  riwayatDetailModal.classList.add('hidden');
+  riwayatDetailModal.classList.remove('flex');
+}
+riwayatDetailCloseBtn.addEventListener('click', closeRiwayatDetail);
+riwayatDetailModal.addEventListener('click', (e) => { if (e.target === riwayatDetailModal) closeRiwayatDetail(); });
+
+/* ==========================================================
+   8. TOAST
+   ========================================================== */
+let toastTimeout;
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  clearTimeout(toastTimeout);
+  const icon = type === 'success' ? 'fa-circle-check text-wahdah-400' : 'fa-circle-exclamation text-red-400';
+  toast.innerHTML = `<i class="fa-solid ${icon} mt-0.5"></i><span>${message}</span>`;
+  toast.classList.remove('hidden');
+  toast.classList.add('flex');
+  toastTimeout = setTimeout(() => {
+    toast.classList.add('hidden');
+    toast.classList.remove('flex');
+  }, 3500);
+}
+</script>
+</body>
+</html>
