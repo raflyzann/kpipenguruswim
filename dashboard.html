@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Capaian KPI - Wahdah Islamiyah Makassar</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
@@ -185,6 +186,13 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-5 md:p-6">
+          <p class="text-sm font-semibold text-wahdah-800 mb-4">Grafik Skor KPI per Departemen</p>
+          <div class="relative h-64 md:h-80">
+            <canvas id="kpiChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-5 md:p-6">
           <div class="flex flex-col lg:flex-row lg:items-end gap-4 mb-5">
             <div class="flex-1">
               <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Periode</label>
@@ -283,9 +291,14 @@
             <p class="text-sm text-wahdah-600">
               <span id="riwayatTotalCount">0</span> data ditemukan
             </p>
-            <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
-              <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="riwayatExportBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-file-csv"></i> Export CSV
+              </button>
+              <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -525,6 +538,9 @@ const LOCAL_FALLBACK = {
       })
       .sort((a, b) => b.totalSkor - a.totalSkor);
     return { success: true, leaderboard };
+  },
+  getRiwayatLaporan: () => {
+    return { data: [...DUMMY_TRANSAKSI], total: DUMMY_TRANSAKSI.length, page: 1, pageSize: DUMMY_TRANSAKSI.length };
   }
 };
 
@@ -728,7 +744,9 @@ async function renderDashboard() {
     return;
   }
   if (!res.success) {
-    showToast(res.message || 'Gagal memuat dashboard.', 'error');
+    const msg = res.message || 'Gagal memuat dashboard.';
+    const code = res.code ? ' [' + res.code + ']' : '';
+    showToast(msg + code, 'error');
     // Kalau sesi ternyata tidak valid lagi (mis. akun dihapus dari
     // sheet Admin), kembalikan ke kondisi terkunci & minta login ulang.
     state.dashboardUnlocked = false;
@@ -742,6 +760,7 @@ async function renderDashboard() {
   currentLeaderboard = res.leaderboard;
   renderLeaderboardTable();
   renderStats();
+  renderChart();
 }
 
 function renderStats() {
@@ -749,6 +768,72 @@ function renderStats() {
   const totalKegiatan = currentLeaderboard.reduce((sum, r) => sum + r.jumlahKegiatan, 0);
   document.getElementById('statTotalKegiatan').textContent = totalKegiatan;
   document.getElementById('statTopPengurus').textContent = currentLeaderboard[0] ? currentLeaderboard[0].nama : '-';
+}
+
+let kpiChartInstance = null;
+
+function renderChart() {
+  const ctx = document.getElementById('kpiChart');
+  if (!ctx) return;
+
+  const deptMap = {};
+  currentLeaderboard.forEach(r => {
+    const depts = r.departemen.split(',').map(d => d.trim()).filter(Boolean);
+    depts.forEach(d => {
+      if (!deptMap[d]) deptMap[d] = 0;
+      deptMap[d] += r.totalSkor;
+    });
+  });
+
+  const labels = Object.keys(deptMap);
+  const data = Object.values(deptMap);
+  const colors = [
+    '#177355', '#25906a', '#48ac83', '#7ccca9', '#c9a24b',
+    '#a9843a', '#dcb96a', '#124a3a', '#145c46', '#0e3a2e'
+  ];
+
+  if (kpiChartInstance) {
+    kpiChartInstance.destroy();
+  }
+
+  kpiChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Total Skor KPI',
+        data: data,
+        backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#124a3a',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 12,
+          cornerRadius: 8
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(14,58,46,0.06)' },
+          ticks: { color: '#145c46', font: { size: 12 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#145c46', font: { size: 12 } }
+        }
+      }
+    }
+  });
 }
 
 function rankBadgeClasses(rank) {
@@ -926,10 +1011,10 @@ function parseLinkLampiran_(row) {
 async function loadRiwayat() {
   riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data riwayat...</td></tr>`;
   try {
-    const rawData = await gsCall('getRiwayatLaporan');
-    riwayatState.data = rawData.map(parseLinkLampiran_);
+    const res = await gsCall('getRiwayatLaporan', 0, 0);
+    riwayatState.data = (res.data || []).map(parseLinkLampiran_);
+    riwayatState.total = res.total || 0;
     riwayatState.loaded = true;
-    riwayatState.page = 1;
     applyRiwayatFilter();
   } catch (err) {
     riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500 text-sm">Gagal memuat data: ${err.message}</td></tr>`;
@@ -979,6 +1064,32 @@ riwayatRefreshBtn.addEventListener('click', () => {
   riwayatState.loaded = false;
   loadRiwayat();
 });
+
+function exportRiwayatToCsv() {
+  if (!riwayatState.data || riwayatState.data.length === 0) {
+    showToast('Tidak ada data untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['Nama', 'Departemen', 'Tanggal Kegiatan', 'Jenis Kegiatan', 'Status', 'Skor KPI', 'Detail', 'Link Lampiran'];
+  const rows = riwayatState.data.map(row => {
+    const detailStr = row.detail ? Object.entries(row.detail).filter(([,v]) => v).map(([k,v]) => k + ': ' + v).join('; ') : '';
+    return [
+      row.nama || '', row.departemen || '', row.tanggalKegiatan || '', row.jenis || '',
+      row.status || '', row.skor || 0, detailStr, row.linkLampiran || ''
+    ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
+  });
+  const csv = '\uFEFF' + headers.map(h => '"' + h + '"').join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'riwayat_kpi_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV berhasil diekspor.', 'success');
+}
+
+riwayatExportBtn.addEventListener('click', exportRiwayatToCsv);
 
 function formatTanggalIndo(tgl) {
   if (!tgl) return '-';
