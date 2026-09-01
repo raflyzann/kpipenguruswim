@@ -334,15 +334,20 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 overflow-hidden">
-          <div class="flex items-center justify-between px-5 py-3.5 border-b border-wahdah-100">
-            <p class="text-sm text-wahdah-600">
-              <span id="riwayatTotalCount">0</span> data ditemukan
-            </p>
-            <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
-              <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
-            </button>
-          </div>
+          <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-wahdah-100">
+              <p class="text-sm text-wahdah-600">
+                <span id="riwayatTotalCount">0</span> data ditemukan
+              </p>
+              <div class="flex items-center gap-2">
+                <button id="riwayatExportBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
+                  <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+                <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
+                  <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
+                </button>
+              </div>
+            </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -522,7 +527,7 @@ const LOCAL_FALLBACK = {
   // gabungan. Frontend (loadRiwayat + parseLinkLampiran_) yang menangani
   // pemecahan link & pembalikan urutan tampilan (terbaru di atas).
   getRiwayatLaporan: () => {
-    return [...DUMMY_TRANSAKSI];
+    return { data: [...DUMMY_TRANSAKSI], total: DUMMY_TRANSAKSI.length, page: 1, pageSize: DUMMY_TRANSAKSI.length };
   }
 };
 
@@ -562,6 +567,7 @@ async function init() {
     populateDepartemenDropdown();
     populateEventChecklist();
     populateRiwayatDeptFilter();
+    loadDraft();
   } catch (err) {
     showToast('Gagal memuat data awal: ' + err.message, 'error');
   }
@@ -741,11 +747,87 @@ function resetDynamicFieldValues() {
   document.getElementById('noHpGSD').value = '';
   document.getElementById('saranCatatan').value = '';
   namaSuggestions.classList.add('hidden');
+  localStorage.removeItem('kpi_form_draft');
+}
+
+function saveDraft() {
+  const jenis = jenisKegiatanEl.value;
+  const draft = {
+    jenisKegiatan: jenis,
+    selectedNama: state.selectedNama,
+    selectedDepartemen: state.selectedDepartemen,
+    selectedStatus: state.selectedStatus,
+    lokasiTaklim: document.getElementById('lokasiTaklim').value,
+    pemateriTaklim: document.getElementById('pemateriTaklim').value,
+    tanggalKegiatan: document.getElementById('tanggalKegiatan').value,
+    tanggalRapat: document.getElementById('tanggalRapat').value,
+    pilihDepartemen: pilihDepartemenEl.value,
+    rapatKe: document.getElementById('rapatKe').value,
+    lokasiRapat: document.getElementById('lokasiRapat').value,
+    jenisOlahraga: document.getElementById('jenisOlahraga').value,
+    namaHasilGSD: document.getElementById('namaHasilGSD').value,
+    noHpGSD: document.getElementById('noHpGSD').value,
+    saranCatatan: document.getElementById('saranCatatan').value,
+    eventChecks: Array.from(eventChecklistEl.querySelectorAll('.event-check:checked')).map(c => c.value),
+    pesertaChecks: Array.from(absensiListEl.querySelectorAll('.peserta-check:checked')).map(c => c.value)
+  };
+  localStorage.setItem('kpi_form_draft', JSON.stringify(draft));
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem('kpi_form_draft');
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    if (!draft.jenisKegiatan) return;
+    jenisKegiatanEl.value = draft.jenisKegiatan;
+    jenisKegiatanEl.dispatchEvent(new Event('change'));
+    if (draft.selectedNama) {
+      namaInput.value = draft.selectedNama;
+      departemenInput.value = draft.selectedStatus ? (draft.selectedDepartemen + ' - ' + draft.selectedStatus) : draft.selectedDepartemen;
+      state.selectedNama = draft.selectedNama;
+      state.selectedDepartemen = draft.selectedDepartemen;
+      state.selectedStatus = draft.selectedStatus;
+    }
+    if (draft.lokasiTaklim) document.getElementById('lokasiTaklim').value = draft.lokasiTaklim;
+    if (draft.pemateriTaklim) document.getElementById('pemateriTaklim').value = draft.pemateriTaklim;
+    if (draft.tanggalKegiatan) document.getElementById('tanggalKegiatan').value = draft.tanggalKegiatan;
+    if (draft.tanggalRapat) document.getElementById('tanggalRapat').value = draft.tanggalRapat;
+    if (draft.pilihDepartemen) {
+      pilihDepartemenEl.value = draft.pilihDepartemen;
+      pilihDepartemenEl.dispatchEvent(new Event('change'));
+      if (draft.pesertaChecks && draft.pesertaChecks.length > 0) {
+        setTimeout(() => {
+          draft.pesertaChecks.forEach(val => {
+            const cb = absensiListEl.querySelector('.peserta-check[value="' + val + '"]');
+            if (cb) cb.checked = true;
+          });
+        }, 100);
+      }
+    }
+    if (draft.rapatKe) document.getElementById('rapatKe').value = draft.rapatKe;
+    if (draft.lokasiRapat) document.getElementById('lokasiRapat').value = draft.lokasiRapat;
+    if (draft.jenisOlahraga) document.getElementById('jenisOlahraga').value = draft.jenisOlahraga;
+    if (draft.namaHasilGSD) document.getElementById('namaHasilGSD').value = draft.namaHasilGSD;
+    if (draft.noHpGSD) document.getElementById('noHpGSD').value = draft.noHpGSD;
+    if (draft.saranCatatan) document.getElementById('saranCatatan').value = draft.saranCatatan;
+    if (draft.eventChecks && draft.eventChecks.length > 0) {
+      setTimeout(() => {
+        draft.eventChecks.forEach(val => {
+          const cb = eventChecklistEl.querySelector('.event-check[value="' + val + '"]');
+          if (cb) cb.checked = true;
+        });
+      }, 100);
+    }
+    showToast('Draft form berhasil dipulihkan.', 'success');
+  } catch (e) {
+    // abaikan draft rusak
+  }
 }
 
 /* ==========================================================
-   6. AUTOCOMPLETE NAMA + AUTOFILL DEPARTEMEN & STATUS
-   ========================================================== */
+    6. AUTOCOMPLETE NAMA + AUTOFILL DEPARTEMEN & STATUS
+    ========================================================== */
 namaInput.addEventListener('input', () => {
   const q = namaInput.value.trim().toLowerCase();
   state.selectedNama = null;
@@ -822,11 +904,31 @@ pilihDepartemenEl.addEventListener('change', () => {
        <span>${p.nama}${p.status ? ' <span class="text-wahdah-400 font-normal">- ' + p.status + '</span>' : ''}</span>
      </label>`
   ).join('');
+  saveDraftDebounced();
 });
 
+function autoSaveHandler() { saveDraft(); }
+let saveDraftTimer;
+function saveDraftDebounced() {
+  clearTimeout(saveDraftTimer);
+  saveDraftTimer = setTimeout(autoSaveHandler, 500);
+}
+
+ALL_DYNAMIC_FIELDS.forEach(f => {
+  if (f.tagName === 'SELECT' || f.type === 'file') {
+    f.addEventListener('change', saveDraftDebounced);
+  } else {
+    f.addEventListener('input', saveDraftDebounced);
+  }
+});
+eventChecklistEl.addEventListener('change', saveDraftDebounced);
+absensiListEl.addEventListener('change', saveDraftDebounced);
+jenisKegiatanEl.addEventListener('change', () => setTimeout(saveDraftDebounced, 100));
+namaInput.addEventListener('change', saveDraftDebounced);
+
 /* ==========================================================
-   8. VALIDASI FORM
-   ========================================================== */
+    8. VALIDASI FORM
+    ========================================================== */
 function clearAllErrors() {
   document.querySelectorAll('.err-msg').forEach(e => e.classList.add('hidden'));
 }
@@ -896,6 +998,7 @@ function validateForm() {
     const file = document.getElementById('uploadFoto').files[0];
     if (!file) { showError('uploadFoto'); valid = false; }
     else if (!validateFileExt(file.name, ['jpg', 'jpeg', 'png'])) { showError('uploadFoto'); valid = false; }
+    else if (file.size > 10 * 1024 * 1024) { showError('uploadFoto'); valid = false; showToast('Ukuran foto maksimal 10MB.', 'error'); }
   }
 
   if (isFieldVisible(fieldJenisOlahraga)) {
@@ -915,6 +1018,7 @@ function validateForm() {
     const file = document.getElementById('uploadHasilRapat').files[0];
     if (!file) { showError('uploadHasilRapat'); valid = false; }
     else if (!validateFileExt(file.name, ['pdf', 'doc', 'docx'])) { showError('uploadHasilRapat'); valid = false; }
+    else if (file.size > 10 * 1024 * 1024) { showError('uploadHasilRapat'); valid = false; showToast('Ukuran file hasil rapat maksimal 10MB.', 'error'); }
   }
 
   if (isFieldVisible(fieldSaranCatatan)) {
@@ -1001,26 +1105,28 @@ kpiForm.addEventListener('submit', async (e) => {
   submitBtn.prepend(spinner);
   submitBtnText.textContent = 'Mengunggah & menyimpan...';
 
-  try {
-    const res = await gsCall('submitLaporan', formData);
-    if (res.success) {
-      successBannerText.textContent = res.message + (res.skor ? ` (+${res.skor} poin KPI)` : '');
-      successBanner.classList.remove('hidden');
-      successBanner.classList.add('flex');
-      showToast(res.message, 'success');
-      kpiForm.reset();
-      jenisKegiatanEl.value = '';
-      showFields([]);
-      resetDynamicFieldValues();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => successBanner.classList.add('hidden'), 4000);
-      riwayatState.loaded = false; // invalidate cache riwayat supaya data baru ikut muncul saat dibuka lagi
-    } else {
-      showToast(res.message || 'Gagal menyimpan laporan.', 'error');
-    }
-  } catch (err) {
-    showToast('Terjadi kesalahan: ' + err.message, 'error');
-  } finally {
+   try {
+     const res = await gsCall('submitLaporan', formData);
+     if (res.success) {
+       successBannerText.textContent = res.message + (res.skor ? ` (+${res.skor} poin KPI)` : '');
+       successBanner.classList.remove('hidden');
+       successBanner.classList.add('flex');
+       showToast(res.message, 'success');
+       kpiForm.reset();
+       jenisKegiatanEl.value = '';
+       showFields([]);
+       resetDynamicFieldValues();
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+       setTimeout(() => successBanner.classList.add('hidden'), 4000);
+       riwayatState.loaded = false; // invalidate cache riwayat supaya data baru ikut muncul saat dibuka lagi
+     } else {
+       const msg = res.message || 'Gagal menyimpan laporan.';
+       const code = res.code ? ' [' + res.code + ']' : '';
+       showToast(msg + code, 'error');
+     }
+   } catch (err) {
+     showToast('Terjadi kesalahan: ' + err.message, 'error');
+   } finally {
     submitBtn.disabled = false;
     submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
     spinner.remove();
@@ -1038,12 +1144,39 @@ const riwayatFilterTglAwal = document.getElementById('riwayatFilterTglAwal');
 const riwayatFilterTglAkhir = document.getElementById('riwayatFilterTglAkhir');
 const riwayatResetFilter = document.getElementById('riwayatResetFilter');
 const riwayatRefreshBtn = document.getElementById('riwayatRefreshBtn');
+const riwayatExportBtn = document.getElementById('riwayatExportBtn');
 const riwayatTableBody = document.getElementById('riwayatTableBody');
 const riwayatTotalCount = document.getElementById('riwayatTotalCount');
 const riwayatPagination = document.getElementById('riwayatPagination');
 const riwayatDetailModal = document.getElementById('riwayatDetailModal');
 const riwayatDetailBody = document.getElementById('riwayatDetailBody');
 const riwayatDetailCloseBtn = document.getElementById('riwayatDetailCloseBtn');
+
+function exportRiwayatToCsv() {
+  if (!riwayatState.data || riwayatState.data.length === 0) {
+    showToast('Tidak ada data untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['Nama', 'Departemen', 'Tanggal Kegiatan', 'Jenis Kegiatan', 'Status', 'Skor KPI', 'Detail', 'Link Lampiran'];
+  const rows = riwayatState.data.map(row => {
+    const detailStr = row.detail ? Object.entries(row.detail).filter(([,v]) => v).map(([k,v]) => k + ': ' + v).join('; ') : '';
+    return [
+      row.nama || '', row.departemen || '', row.tanggalKegiatan || '', row.jenis || '',
+      row.status || '', row.skor || 0, detailStr, row.linkLampiran || ''
+    ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
+  });
+  const csv = '\uFEFF' + headers.map(h => '"' + h + '"').join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'riwayat_kpi_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV berhasil diekspor.', 'success');
+}
+
+riwayatExportBtn.addEventListener('click', exportRiwayatToCsv);
 
 function populateRiwayatDeptFilter() {
   riwayatFilterDept.innerHTML = '<option value="">Semua departemen</option>' +
@@ -1076,14 +1209,10 @@ function parseLinkLampiran_(row) {
 async function loadRiwayat() {
   riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data riwayat...</td></tr>`;
   try {
-    // getRiwayatLaporan() di Code.gs mengembalikan data yang sudah
-    // di-flatten per nama (Rapat Rutin dipecah per peserta), dengan
-    // urutan mengikuti baris sheet apa adanya (atas ke bawah). Field
-    // "linkLampiran" masih gabungan - dipecah di parseLinkLampiran_.
-    const rawData = await gsCall('getRiwayatLaporan');
-    riwayatState.data = rawData.map(parseLinkLampiran_);
+    const res = await gsCall('getRiwayatLaporan', 0, 0);
+    riwayatState.data = (res.data || []).map(parseLinkLampiran_);
+    riwayatState.total = res.total || 0;
     riwayatState.loaded = true;
-    riwayatState.page = 1;
     applyRiwayatFilter();
   } catch (err) {
     riwayatTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500 text-sm">Gagal memuat data: ${err.message}</td></tr>`;
