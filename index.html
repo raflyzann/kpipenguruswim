@@ -346,9 +346,6 @@
                 <span id="riwayatTotalCount">0</span> data ditemukan
               </p>
               <div class="flex items-center gap-2">
-                <button id="riwayatExportBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
-                  <i class="fa-solid fa-file-csv"></i> Export CSV
-                </button>
                 <button id="riwayatRefreshBtn" type="button" class="text-wahdah-600 hover:text-wahdah-800 text-xs font-medium flex items-center gap-1.5">
                   <i class="fa-solid fa-arrows-rotate"></i> Muat ulang
                 </button>
@@ -1280,39 +1277,12 @@ const riwayatFilterTglAwal = document.getElementById('riwayatFilterTglAwal');
 const riwayatFilterTglAkhir = document.getElementById('riwayatFilterTglAkhir');
 const riwayatResetFilter = document.getElementById('riwayatResetFilter');
 const riwayatRefreshBtn = document.getElementById('riwayatRefreshBtn');
-const riwayatExportBtn = document.getElementById('riwayatExportBtn');
 const riwayatTableBody = document.getElementById('riwayatTableBody');
 const riwayatTotalCount = document.getElementById('riwayatTotalCount');
 const riwayatPagination = document.getElementById('riwayatPagination');
 const riwayatDetailModal = document.getElementById('riwayatDetailModal');
 const riwayatDetailBody = document.getElementById('riwayatDetailBody');
 const riwayatDetailCloseBtn = document.getElementById('riwayatDetailCloseBtn');
-
-function exportRiwayatToCsv() {
-  if (!riwayatState.data || riwayatState.data.length === 0) {
-    showToast('Tidak ada data untuk diekspor.', 'error');
-    return;
-  }
-  const headers = ['Nama', 'Departemen', 'Tanggal Kegiatan', 'Jenis Kegiatan', 'Status', 'Skor KPI', 'Detail', 'Link Lampiran'];
-  const rows = riwayatState.data.map(row => {
-    const detailStr = row.detail ? Object.entries(row.detail).filter(([,v]) => v).map(([k,v]) => k + ': ' + v).join('; ') : '';
-    return [
-      row.nama || '', row.departemen || '', row.tanggalKegiatan || '', row.jenis || '',
-      row.status || '', row.skor || 0, detailStr, row.linkLampiran || ''
-    ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
-  });
-  const csv = '\uFEFF' + headers.map(h => '"' + h + '"').join(',') + '\n' + rows.join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'riwayat_kpi_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('CSV berhasil diekspor.', 'success');
-}
-
-riwayatExportBtn.addEventListener('click', exportRiwayatToCsv);
 
 function populateRiwayatDeptFilter() {
   riwayatFilterDept.innerHTML = '<option value="">Semua departemen</option>' +
