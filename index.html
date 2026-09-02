@@ -262,6 +262,12 @@
             <p class="err-msg hidden text-red-500 text-xs mt-1" data-for="namaHasilGSD">Isi nama hasil GSD.</p>
           </div>
 
+          <div id="field-kategoriPembinaan" class="hidden fade-in">
+            <label class="block text-sm font-semibold text-wahdah-800 mb-1.5">Kategori Pembinaan <span class="text-red-500">*</span></label>
+            <input id="kategoriPembinaan" type="text" placeholder="Contoh: Tarbiyah, Tahsin..." class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
+            <p class="err-msg hidden text-red-500 text-xs mt-1" data-for="kategoriPembinaan">Isi kategori pembinaan.</p>
+          </div>
+
           <div id="field-noHpGSD" class="hidden fade-in">
             <label class="block text-sm font-semibold text-wahdah-800 mb-1.5">No. HP Hasil GSD <span class="text-red-500">*</span></label>
             <input id="noHpGSD" type="tel" placeholder="08xxxxxxxxxx" class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
@@ -509,7 +515,7 @@ const LOCAL_FALLBACK = {
       if (jenis === 'Taklim Rutin') detail = { 'Lokasi Taklim': formData.lokasiTaklim, 'Pemateri': formData.pemateriTaklim, 'Catatan': formData.saranCatatan };
       if (jenis === 'Kegiatan Event') detail = { 'Nama Event': (formData.namaEvent || []).join(', '), 'Catatan': formData.saranCatatan };
       if (jenis === 'Olahraga Rutin') detail = { 'Jenis Olahraga': formData.jenisOlahraga, 'Catatan': formData.saranCatatan };
-      if (jenis === 'Pencapaian GSD') detail = { 'Nama Hasil GSD': formData.namaHasilGSD, 'No. HP': formData.noHpGSD };
+      if (jenis === 'Pencapaian GSD') detail = { 'Nama Hasil GSD': formData.namaHasilGSD, 'Kategori Pembinaan': formData.kategoriPembinaan, 'No. HP': formData.noHpGSD };
       DUMMY_TRANSAKSI.push({
         timestamp: new Date(),
         tanggalKegiatan: formData.tanggalKegiatan || new Date().toISOString().slice(0,10),
@@ -662,6 +668,7 @@ const fieldNamaEvent = document.getElementById('field-namaEvent');
 const fieldUploadFoto = document.getElementById('field-uploadFoto');
 const fieldJenisOlahraga = document.getElementById('field-jenisOlahraga');
 const fieldNamaHasilGSD = document.getElementById('field-namaHasilGSD');
+const fieldKategoriPembinaan = document.getElementById('field-kategoriPembinaan');
 const fieldNoHpGSD = document.getElementById('field-noHpGSD');
 const fieldUploadHasilRapat = document.getElementById('field-uploadHasilRapat');
 const fieldSaranCatatan = document.getElementById('field-saranCatatan');
@@ -676,7 +683,7 @@ const eventChecklistEl = document.getElementById('eventChecklist');
 const ALL_DYNAMIC_FIELDS = [
   fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldLokasiTaklim, fieldPemateriTaklim, fieldTanggalRapat,
   fieldPilihDepartemen, fieldAbsensi, fieldRapatKe, fieldLokasiRapat, fieldNamaEvent, fieldUploadFoto,
-  fieldJenisOlahraga, fieldNamaHasilGSD, fieldNoHpGSD, fieldUploadHasilRapat, fieldSaranCatatan
+  fieldJenisOlahraga, fieldNamaHasilGSD, fieldKategoriPembinaan, fieldNoHpGSD, fieldUploadHasilRapat, fieldSaranCatatan
 ];
 
 function showFields(list) {
@@ -717,7 +724,7 @@ jenisKegiatanEl.addEventListener('change', () => {
   } else if (val === 'Olahraga Rutin') {
     showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldJenisOlahraga, fieldUploadFoto, fieldSaranCatatan]);
   } else if (val === 'Pencapaian GSD') {
-    showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldNamaHasilGSD, fieldNoHpGSD]);
+    showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldNamaHasilGSD, fieldKategoriPembinaan, fieldNoHpGSD]);
   } else if (val === 'Rapat Rutin Departemen') {
     showFields([fieldTanggalRapat, fieldPilihDepartemen, fieldAbsensi, fieldRapatKe, fieldLokasiRapat, fieldUploadFoto, fieldUploadHasilRapat]);
   } else {
@@ -744,6 +751,7 @@ function resetDynamicFieldValues() {
   document.getElementById('uploadHasilRapat').value = '';
   document.getElementById('jenisOlahraga').value = '';
   document.getElementById('namaHasilGSD').value = '';
+  document.getElementById('kategoriPembinaan').value = '';
   document.getElementById('noHpGSD').value = '';
   document.getElementById('saranCatatan').value = '';
   namaSuggestions.classList.add('hidden');
@@ -766,6 +774,7 @@ function saveDraft() {
     lokasiRapat: document.getElementById('lokasiRapat').value,
     jenisOlahraga: document.getElementById('jenisOlahraga').value,
     namaHasilGSD: document.getElementById('namaHasilGSD').value,
+    kategoriPembinaan: document.getElementById('kategoriPembinaan').value,
     noHpGSD: document.getElementById('noHpGSD').value,
     saranCatatan: document.getElementById('saranCatatan').value,
     eventChecks: Array.from(eventChecklistEl.querySelectorAll('.event-check:checked')).map(c => c.value),
@@ -809,6 +818,7 @@ function loadDraft() {
     if (draft.lokasiRapat) document.getElementById('lokasiRapat').value = draft.lokasiRapat;
     if (draft.jenisOlahraga) document.getElementById('jenisOlahraga').value = draft.jenisOlahraga;
     if (draft.namaHasilGSD) document.getElementById('namaHasilGSD').value = draft.namaHasilGSD;
+    if (draft.kategoriPembinaan) document.getElementById('kategoriPembinaan').value = draft.kategoriPembinaan;
     if (draft.noHpGSD) document.getElementById('noHpGSD').value = draft.noHpGSD;
     if (draft.saranCatatan) document.getElementById('saranCatatan').value = draft.saranCatatan;
     if (draft.eventChecks && draft.eventChecks.length > 0) {
@@ -1009,6 +1019,10 @@ function validateForm() {
     if (!document.getElementById('namaHasilGSD').value.trim()) { showError('namaHasilGSD'); valid = false; }
   }
 
+  if (isFieldVisible(fieldKategoriPembinaan)) {
+    if (!document.getElementById('kategoriPembinaan').value.trim()) { showError('kategoriPembinaan'); valid = false; }
+  }
+
   if (isFieldVisible(fieldNoHpGSD)) {
     const hp = document.getElementById('noHpGSD').value.trim();
     if (!hp || !/^0\d{8,13}$/.test(hp)) { showError('noHpGSD'); valid = false; }
@@ -1089,6 +1103,7 @@ kpiForm.addEventListener('submit', async (e) => {
       }
       if (isFieldVisible(fieldJenisOlahraga)) formData.jenisOlahraga = document.getElementById('jenisOlahraga').value.trim();
       if (isFieldVisible(fieldNamaHasilGSD)) formData.namaHasilGSD = document.getElementById('namaHasilGSD').value.trim();
+      if (isFieldVisible(fieldKategoriPembinaan)) formData.kategoriPembinaan = document.getElementById('kategoriPembinaan').value.trim();
       if (isFieldVisible(fieldNoHpGSD)) formData.noHpGSD = document.getElementById('noHpGSD').value.trim();
       if (isFieldVisible(fieldSaranCatatan)) formData.saranCatatan = document.getElementById('saranCatatan').value.trim();
     }
@@ -1354,7 +1369,7 @@ const RIWAYAT_HIDDEN_LABELS = {
   'Taklim Rutin': ['Lokasi Taklim', 'Pemateri', 'Catatan', 'Poin KPI'],
   'Kegiatan Event': ['Nama Event', 'Catatan', 'Poin KPI'],
   'Olahraga Rutin': ['Jenis Olahraga', 'Catatan', 'Poin KPI'],
-  'Pencapaian GSD': ['Nama Hasil GSD', 'No. HP', 'Poin KPI']
+  'Pencapaian GSD': ['Nama Hasil GSD', 'Kategori Pembinaan', 'No. HP', 'Poin KPI']
 };
 
 function openRiwayatDetail(row) {
