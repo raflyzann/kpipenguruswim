@@ -397,6 +397,32 @@
   </div>
 </div>
 
+<!-- Modal Verifikasi Sekretaris Departemen (User ID + PIN) -->
+<div id="sekretarisPinModal" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-wahdah-950/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-soft w-full max-w-sm p-6 view-fade">
+    <div class="w-12 h-12 rounded-xl bg-wahdah-50 text-wahdah-700 flex items-center justify-center mb-4">
+      <i class="fa-solid fa-lock text-lg"></i>
+    </div>
+    <h3 class="font-bold text-wahdah-900 text-lg mb-1">Verifikasi Sekretaris Departemen</h3>
+    <p class="text-wahdah-500 text-sm mb-4">Menu "Rapat Rutin Departemen" hanya bisa diisi oleh Sekretaris Departemen. Masukkan User ID dan PIN untuk melanjutkan.</p>
+
+    <div class="mb-3">
+      <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">User ID</label>
+      <input id="sekretarisUserIdInput" type="text" autocomplete="off" placeholder="Masukkan User ID..." class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
+    </div>
+
+    <div class="mb-2">
+      <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">PIN</label>
+      <input id="sekretarisPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" style="text-align:left; direction:ltr;" class="w-full text-left tracking-[0.3em] text-sm rounded-xl border border-wahdah-200 px-4 py-2.5 focus:ring-2 focus:ring-wahdah-400 outline-none">
+    </div>
+    <p id="sekretarisPinError" class="hidden text-red-500 text-xs mb-2 text-center">User ID atau PIN salah. Silakan coba lagi.</p>
+    <div class="flex gap-2 mt-3">
+      <button id="sekretarisPinCancelBtn" type="button" class="flex-1 rounded-xl border border-wahdah-200 text-wahdah-700 font-medium text-sm py-2.5 hover:bg-wahdah-50">Batal</button>
+      <button id="sekretarisPinSubmitBtn" type="button" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5">Masuk</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast" class="hidden fixed bottom-5 right-5 z-50 max-w-xs bg-wahdah-900 text-white text-sm rounded-xl shadow-soft px-4 py-3 items-start gap-2"></div>
 
@@ -484,10 +510,18 @@ const DUMMY_EVENT_LIST = [
 
 let DUMMY_TRANSAKSI = []; // hanya untuk simulasi mode preview di file ini
 
+// Dummy PIN sekretaris untuk mode preview (tanpa backend). Di
+// production, validasi sesungguhnya terjadi di server (Code.gs)
+// lewat sheet "Sekretaris" - lihat validateSekretarisLogin().
+const DUMMY_SEKRETARIS = [
+  { userId: 'sekretaris', pin: '456723' }
+];
+
 const LOCAL_FALLBACK = {
   getPengurusData: () => DUMMY_PENGURUS,
   getDepartemenList: () => [...new Set(DUMMY_PENGURUS.map(p => p.departemen))],
   getEventList: () => DUMMY_EVENT_LIST,
+  validateSekretarisLogin: (userId, pin) => DUMMY_SEKRETARIS.some(s => s.userId === userId && s.pin === pin),
   submitLaporan: (formData) => {
     const jenis = formData.jenisKegiatan;
     const skor = KPI_SCORE_MAP[jenis] || 0;
@@ -496,6 +530,9 @@ const LOCAL_FALLBACK = {
     // file hasil rapat) - lihat submitLaporan() & getRiwayatLaporan() di
     // Code.gs. Frontend yang memecahnya lagi lewat parseLinkLampiran_().
     if (jenis === 'Rapat Rutin Departemen' && Array.isArray(formData.pesertaAbsensi)) {
+      if (!LOCAL_FALLBACK.validateSekretarisLogin(formData.sekretarisUserId, formData.sekretarisPin)) {
+        return { success: false, message: 'Verifikasi Sekretaris Departemen gagal. Silakan login ulang.', code: 'UNAUTHORIZED' };
+      }
       const linkParts = [];
       if (formData.fotoKegiatanName) linkParts.push('#dummy-drive-link-foto');
       if (formData.fileHasilRapatName) linkParts.push('#dummy-drive-link-notulen');
@@ -546,7 +583,10 @@ const state = {
   eventList: [],
   selectedNama: null,
   selectedDepartemen: null,
-  selectedStatus: null
+  selectedStatus: null,
+  sekretarisVerified: false, // true setelah PIN sekretaris berhasil diverifikasi (berlaku selama halaman ini belum di-reload)
+  sekretarisUserId: null,
+  sekretarisPin: null
 };
 
 const riwayatState = {
@@ -726,11 +766,86 @@ jenisKegiatanEl.addEventListener('change', () => {
   } else if (val === 'Pencapaian GSD') {
     showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldNamaHasilGSD, fieldKategoriPembinaan, fieldNoHpGSD]);
   } else if (val === 'Rapat Rutin Departemen') {
-    showFields([fieldTanggalRapat, fieldPilihDepartemen, fieldAbsensi, fieldRapatKe, fieldLokasiRapat, fieldUploadFoto, fieldUploadHasilRapat]);
+    if (state.sekretarisVerified) {
+      showFields([fieldTanggalRapat, fieldPilihDepartemen, fieldAbsensi, fieldRapatKe, fieldLokasiRapat, fieldUploadFoto, fieldUploadHasilRapat]);
+    } else {
+      showFields([]); // sembunyikan dulu field-nya sampai PIN terverifikasi
+      openSekretarisPinModal();
+    }
   } else {
     showFields([]);
   }
 });
+
+/* ==========================================================
+   MODAL VERIFIKASI SEKRETARIS DEPARTEMEN (User ID + PIN)
+   Hanya diminta untuk jenis kegiatan "Rapat Rutin Departemen".
+   Validasi PIN sesungguhnya terjadi di server (Code.gs), lewat
+   sheet "Sekretaris" - lihat validateSekretarisLogin(). Tambah/
+   ubah PIN cukup edit sheet tsb, tanpa perlu ubah kode.
+   ========================================================== */
+const sekretarisPinModal = document.getElementById('sekretarisPinModal');
+const sekretarisUserIdInput = document.getElementById('sekretarisUserIdInput');
+const sekretarisPinInput = document.getElementById('sekretarisPinInput');
+const sekretarisPinError = document.getElementById('sekretarisPinError');
+
+function openSekretarisPinModal() {
+  sekretarisPinModal.classList.remove('hidden');
+  sekretarisPinModal.classList.add('flex');
+  sekretarisUserIdInput.value = '';
+  sekretarisPinInput.value = '';
+  sekretarisPinError.classList.add('hidden');
+  setTimeout(() => sekretarisUserIdInput.focus(), 100);
+}
+function closeSekretarisPinModal() {
+  sekretarisPinModal.classList.add('hidden');
+  sekretarisPinModal.classList.remove('flex');
+}
+
+// Batal -> jenis kegiatan dikembalikan ke kosong (form tetap terkunci)
+document.getElementById('sekretarisPinCancelBtn').addEventListener('click', () => {
+  closeSekretarisPinModal();
+  jenisKegiatanEl.value = '';
+  showFields([]);
+});
+
+document.getElementById('sekretarisPinSubmitBtn').addEventListener('click', submitSekretarisPin);
+sekretarisUserIdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sekretarisPinInput.focus(); });
+sekretarisPinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitSekretarisPin(); });
+
+async function submitSekretarisPin() {
+  const userId = sekretarisUserIdInput.value.trim();
+  const pin = sekretarisPinInput.value.trim();
+
+  if (!userId || !pin) {
+    sekretarisPinError.textContent = 'User ID dan PIN wajib diisi.';
+    sekretarisPinError.classList.remove('hidden');
+    return;
+  }
+
+  let valid = false;
+  try {
+    valid = await gsCall('validateSekretarisLogin', userId, pin);
+  } catch (err) {
+    showToast('Gagal memverifikasi login: ' + err.message, 'error');
+    return;
+  }
+
+  if (valid) {
+    state.sekretarisVerified = true;
+    state.sekretarisUserId = userId;
+    state.sekretarisPin = pin;
+    closeSekretarisPinModal();
+    if (jenisKegiatanEl.value === 'Rapat Rutin Departemen') {
+      showFields([fieldTanggalRapat, fieldPilihDepartemen, fieldAbsensi, fieldRapatKe, fieldLokasiRapat, fieldUploadFoto, fieldUploadHasilRapat]);
+    }
+  } else {
+    sekretarisPinError.textContent = 'User ID atau PIN salah. Silakan coba lagi.';
+    sekretarisPinError.classList.remove('hidden');
+    sekretarisPinInput.value = '';
+    sekretarisPinInput.focus();
+  }
+}
 
 function resetDynamicFieldValues() {
   namaInput.value = '';
@@ -1068,6 +1183,12 @@ kpiForm.addEventListener('submit', async (e) => {
       formData.pesertaAbsensi = Array.from(absensiListEl.querySelectorAll('.peserta-check:checked')).map(c => c.value);
       formData.rapatKe = document.getElementById('rapatKe').value.trim();
       formData.lokasiRapat = document.getElementById('lokasiRapat').value.trim();
+      // Disertakan supaya backend (Code.gs) ikut memvalidasi ulang PIN
+      // Sekretaris saat submit - bukan cuma mengandalkan pop-up di
+      // frontend, yang secara teknis bisa dilewati kalau seseorang
+      // memanggil API submitLaporan langsung tanpa lewat UI.
+      formData.sekretarisUserId = state.sekretarisUserId || '';
+      formData.sekretarisPin = state.sekretarisPin || '';
 
       const fotoRapatFile = document.getElementById('uploadFoto').files[0];
       if (fotoRapatFile) {
