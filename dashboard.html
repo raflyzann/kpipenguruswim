@@ -139,6 +139,11 @@
         <span>Dashboard Capaian KPI</span>
       </button>
 
+      <button type="button" id="navRekapRapat" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
+        <i class="fa-solid fa-people-group w-5 text-center"></i>
+        <span>Rekap Rapat Departemen</span>
+      </button>
+
       <button type="button" id="navRiwayat" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
         <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
         <span>Riwayat Inputan Data</span>
@@ -194,17 +199,7 @@
 
         <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-5 md:p-6">
           <div class="flex flex-col lg:flex-row lg:items-end gap-4 mb-5">
-            <div class="flex-1">
-              <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Periode</label>
-              <select id="filterPeriode" class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none bg-white">
-                <option value="semua">Semua Data</option>
-                <option value="7hari">7 Hari Terakhir</option>
-                <option value="bulanini">Bulan Ini</option>
-                <option value="tahunini">Tahun Ini</option>
-                <option value="custom">Custom Tanggal</option>
-              </select>
-            </div>
-            <div id="customDateWrap" class="hidden flex-1 grid grid-cols-2 gap-2">
+            <div class="flex-1 grid grid-cols-2 gap-2">
               <div>
                 <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Mulai</label>
                 <input id="customStart" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
@@ -214,6 +209,9 @@
                 <input id="customEnd" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
               </div>
             </div>
+            <button id="resetTanggalBtn" type="button" class="rounded-xl border border-wahdah-200 text-wahdah-600 hover:bg-wahdah-50 text-sm font-medium px-4 py-2.5 flex items-center gap-2 justify-center">
+              <i class="fa-solid fa-rotate-left"></i> Reset Tanggal
+            </button>
             <div class="flex-1">
               <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Cari Nama</label>
               <div class="relative">
@@ -323,6 +321,48 @@
           </div>
 
           <div id="riwayatPagination" class="flex items-center justify-between px-5 py-3.5 border-t border-wahdah-100 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: REKAP RAPAT DEPARTEMEN ============ -->
+      <section id="viewRekapRapat" class="hidden view-fade max-w-6xl mx-auto space-y-5">
+        <div class="bg-white rounded-2xl shadow-soft border border-wahdah-100 p-5 md:p-6">
+          <div class="flex flex-col lg:flex-row lg:items-end gap-4 mb-5">
+            <div class="flex-1 grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Mulai</label>
+                <input id="customStartRekapRapat" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Akhir</label>
+                <input id="customEndRekapRapat" type="date" class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+            </div>
+            <button id="resetTanggalRekapRapatBtn" type="button" class="rounded-xl border border-wahdah-200 text-wahdah-600 hover:bg-wahdah-50 text-sm font-medium px-4 py-2.5 flex items-center gap-2 justify-center">
+              <i class="fa-solid fa-rotate-left"></i> Reset Tanggal
+            </button>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">Cari Departemen</label>
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wahdah-300 text-sm"></i>
+                <input id="searchRekapRapat" type="text" placeholder="Cari departemen..." class="w-full rounded-xl border border-wahdah-200 pl-9 pr-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+              </div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-wahdah-100">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-wahdah-50 text-wahdah-700 text-xs uppercase tracking-wide">
+                  <th class="text-left font-semibold px-4 py-3 w-14">Rank</th>
+                  <th class="text-left font-semibold px-4 py-3">Departemen</th>
+                  <th class="text-right font-semibold px-4 py-3">Jumlah Rapat</th>
+                </tr>
+              </thead>
+              <tbody id="rekapRapatBody" class="divide-y divide-wahdah-50"></tbody>
+            </table>
+          </div>
+          <p id="emptyRekapRapat" class="hidden text-center text-wahdah-400 text-sm py-8">Belum ada data pada periode ini.</p>
         </div>
       </section>
 
@@ -502,17 +542,34 @@ function formatTanggalTampilLocal(d) {
 
 const LOCAL_FALLBACK = {
   validateAdminLogin: (userId, pin) => DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin),
-  getDashboardData: (userId, pin, filterType, startDateStr, endDateStr) => {
+  getRekapRapatDepartemen: (userId, pin, startDateStr, endDateStr) => {
     if (!DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin)) {
       return { success: false, message: 'User ID atau PIN salah.' };
     }
-    const now = new Date();
-    let start, end;
-    if (filterType === '7hari') { start = new Date(now); start.setDate(now.getDate() - 7); end = now; }
-    else if (filterType === 'bulanini') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = now; }
-    else if (filterType === 'tahunini') { start = new Date(now.getFullYear(), 0, 1); end = now; }
-    else if (filterType === 'custom' && startDateStr && endDateStr) { start = new Date(startDateStr); end = new Date(endDateStr); end.setHours(23,59,59,999); }
-    else { start = new Date(0); end = now; }
+    const start = startDateStr ? new Date(startDateStr) : new Date(0);
+    const end = endDateStr ? (() => { const d = new Date(endDateStr); d.setHours(23,59,59,999); return d; })() : new Date();
+
+    const rekap = {};
+    [...new Set(DUMMY_PENGURUS.map(p => p.departemen))].forEach(dep => { rekap[dep] = 0; });
+
+    DUMMY_TRANSAKSI.forEach(row => {
+      if (row.jenis !== 'Rapat Rutin Departemen') return;
+      if (row.timestamp < start || row.timestamp > end) return;
+      rekap[row.departemen] = (rekap[row.departemen] || 0) + 1;
+    });
+
+    const rekapRapat = Object.keys(rekap)
+      .map(dep => ({ departemen: dep, jumlahRapat: rekap[dep] }))
+      .sort((a, b) => b.jumlahRapat !== a.jumlahRapat ? b.jumlahRapat - a.jumlahRapat : a.departemen.localeCompare(b.departemen));
+
+    return { success: true, rekapRapat };
+  },
+  getDashboardData: (userId, pin, startDateStr, endDateStr) => {
+    if (!DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin)) {
+      return { success: false, message: 'User ID atau PIN salah.' };
+    }
+    const start = startDateStr ? new Date(startDateStr) : new Date(0);
+    const end = endDateStr ? (() => { const d = new Date(endDateStr); d.setHours(23,59,59,999); return d; })() : new Date();
 
     const rekap = {};
     DUMMY_TRANSAKSI.forEach(row => {
@@ -593,13 +650,15 @@ overlay.addEventListener('click', closeSidebarMobile);
    ========================================================== */
 const navDashboard = document.getElementById('navDashboard');
 const navRiwayat = document.getElementById('navRiwayat');
+const navRekapRapat = document.getElementById('navRekapRapat');
 const viewDashboardSection = document.getElementById('view-dashboard');
 const viewRiwayatSection = document.getElementById('viewRiwayat');
+const viewRekapRapatSection = document.getElementById('viewRekapRapat');
 const pageTitle = document.getElementById('pageTitle');
 const pageSubtitle = document.getElementById('pageSubtitle');
 
 function setActiveNav(activeBtn) {
-  [navDashboard, navRiwayat].forEach(btn => {
+  [navDashboard, navRiwayat, navRekapRapat].forEach(btn => {
     btn.classList.remove('bg-white/10', 'text-white');
     btn.classList.add('text-wahdah-100');
   });
@@ -612,8 +671,11 @@ function goToView(view) {
   // ditangani terpisah oleh alur PIN modal (lihat submitPin()).
   if (!state.dashboardUnlocked) return;
 
+  viewDashboardSection.classList.add('hidden');
+  viewRiwayatSection.classList.add('hidden');
+  viewRekapRapatSection.classList.add('hidden');
+
   if (view === 'riwayat') {
-    viewDashboardSection.classList.add('hidden');
     viewRiwayatSection.classList.remove('hidden');
     viewRiwayatSection.classList.remove('view-fade'); void viewRiwayatSection.offsetWidth; viewRiwayatSection.classList.add('view-fade');
     pageTitle.textContent = 'Riwayat Inputan Data';
@@ -621,8 +683,15 @@ function goToView(view) {
     setActiveNav(navRiwayat);
     if (!riwayatState.loaded) loadRiwayat();
     if (window.innerWidth < 768) closeSidebarMobile();
+  } else if (view === 'rekapRapat') {
+    viewRekapRapatSection.classList.remove('hidden');
+    viewRekapRapatSection.classList.remove('view-fade'); void viewRekapRapatSection.offsetWidth; viewRekapRapatSection.classList.add('view-fade');
+    pageTitle.textContent = 'Rekap Rapat Departemen';
+    pageSubtitle.textContent = 'Jumlah Rapat Rutin Departemen, diurutkan dari yang terbanyak';
+    setActiveNav(navRekapRapat);
+    renderRekapRapat();
+    if (window.innerWidth < 768) closeSidebarMobile();
   } else {
-    viewRiwayatSection.classList.add('hidden');
     viewDashboardSection.classList.remove('hidden');
     viewDashboardSection.classList.remove('view-fade'); void viewDashboardSection.offsetWidth; viewDashboardSection.classList.add('view-fade');
     pageTitle.textContent = 'Dashboard Capaian KPI';
@@ -634,6 +703,7 @@ function goToView(view) {
 
 navDashboard.addEventListener('click', () => goToView('dashboard'));
 navRiwayat.addEventListener('click', () => goToView('riwayat'));
+navRekapRapat.addEventListener('click', () => goToView('rekapRapat'));
 
 /* ==========================================================
    4. LOGIN MODAL (User ID + PIN) - terbuka otomatis saat halaman dimuat
@@ -712,10 +782,9 @@ openPinModal();
 /* ==========================================================
    5. DASHBOARD - FILTER & LEADERBOARD
    ========================================================== */
-const filterPeriode = document.getElementById('filterPeriode');
-const customDateWrap = document.getElementById('customDateWrap');
 const customStart = document.getElementById('customStart');
 const customEnd = document.getElementById('customEnd');
+const resetTanggalBtn = document.getElementById('resetTanggalBtn');
 const searchLeaderboard = document.getElementById('searchLeaderboard');
 const leaderboardBody = document.getElementById('leaderboardBody');
 const emptyLeaderboard = document.getElementById('emptyLeaderboard');
@@ -723,22 +792,22 @@ const emptyLeaderboard = document.getElementById('emptyLeaderboard');
 let currentLeaderboard = [];
 let currentFilteredLeaderboard = [];
 
-filterPeriode.addEventListener('change', () => {
-  customDateWrap.classList.toggle('hidden', filterPeriode.value !== 'custom');
-  renderDashboard();
-});
 customStart.addEventListener('change', renderDashboard);
 customEnd.addEventListener('change', renderDashboard);
+resetTanggalBtn.addEventListener('click', () => {
+  customStart.value = '';
+  customEnd.value = '';
+  renderDashboard();
+});
 searchLeaderboard.addEventListener('input', renderLeaderboardTable);
 
 async function renderDashboard() {
   if (!state.dashboardUnlocked || !state.adminUserId || !state.adminPin) {
     return;
   }
-  const filterType = filterPeriode.value;
   let res;
   try {
-    res = await gsCall('getDashboardData', state.adminUserId, state.adminPin, filterType, customStart.value, customEnd.value);
+    res = await gsCall('getDashboardData', state.adminUserId, state.adminPin, customStart.value, customEnd.value);
   } catch (err) {
     showToast('Gagal memuat dashboard: ' + err.message, 'error');
     return;
@@ -878,6 +947,67 @@ leaderboardBody.addEventListener('click', (e) => {
   const person = currentFilteredLeaderboard[idx];
   if (person) openDetailModal(person);
 });
+
+/* ==========================================================
+   5b. REKAP RAPAT DEPARTEMEN - FILTER & TABEL
+   ========================================================== */
+const customStartRekapRapat = document.getElementById('customStartRekapRapat');
+const customEndRekapRapat = document.getElementById('customEndRekapRapat');
+const resetTanggalRekapRapatBtn = document.getElementById('resetTanggalRekapRapatBtn');
+const searchRekapRapat = document.getElementById('searchRekapRapat');
+const rekapRapatBody = document.getElementById('rekapRapatBody');
+const emptyRekapRapat = document.getElementById('emptyRekapRapat');
+
+let currentRekapRapat = [];
+
+customStartRekapRapat.addEventListener('change', renderRekapRapat);
+customEndRekapRapat.addEventListener('change', renderRekapRapat);
+resetTanggalRekapRapatBtn.addEventListener('click', () => {
+  customStartRekapRapat.value = '';
+  customEndRekapRapat.value = '';
+  renderRekapRapat();
+});
+searchRekapRapat.addEventListener('input', renderRekapRapatTable);
+
+async function renderRekapRapat() {
+  if (!state.dashboardUnlocked || !state.adminUserId || !state.adminPin) return;
+  let res;
+  try {
+    res = await gsCall('getRekapRapatDepartemen', state.adminUserId, state.adminPin, customStartRekapRapat.value, customEndRekapRapat.value);
+  } catch (err) {
+    showToast('Gagal memuat rekap rapat: ' + err.message, 'error');
+    return;
+  }
+  if (!res.success) {
+    const msg = res.message || 'Gagal memuat rekap rapat.';
+    const code = res.code ? ' [' + res.code + ']' : '';
+    showToast(msg + code, 'error');
+    return;
+  }
+  currentRekapRapat = res.rekapRapat;
+  renderRekapRapatTable();
+}
+
+function renderRekapRapatTable() {
+  const q = searchRekapRapat.value.trim().toLowerCase();
+  const filtered = currentRekapRapat.filter(r => r.departemen.toLowerCase().includes(q));
+
+  if (filtered.length === 0) {
+    rekapRapatBody.innerHTML = '';
+    emptyRekapRapat.classList.remove('hidden');
+    return;
+  }
+  emptyRekapRapat.classList.add('hidden');
+
+  rekapRapatBody.innerHTML = filtered.map((r, i) => {
+    const rank = i + 1;
+    return `<tr class="leaderboard-row transition-colors">
+      <td class="px-4 py-3"><span class="rank-badge ${rankBadgeClasses(rank)}">${rank}</span></td>
+      <td class="px-4 py-3 font-medium text-wahdah-900">${r.departemen}</td>
+      <td class="px-4 py-3 text-right font-bold text-wahdah-800">${r.jumlahRapat}</td>
+    </tr>`;
+  }).join('');
+}
 
 /* ==========================================================
    6. MODAL DETAIL KEGIATAN PER PENGURUS
