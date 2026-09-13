@@ -415,7 +415,7 @@
     <p id="sekretarisPinError" class="hidden text-red-500 text-xs mb-2 text-center">User ID atau PIN salah. Silakan coba lagi.</p>
     <div class="flex gap-2 mt-3">
       <button id="sekretarisPinCancelBtn" type="button" class="flex-1 rounded-xl border border-wahdah-200 text-wahdah-700 font-medium text-sm py-2.5 hover:bg-wahdah-50">Batal</button>
-      <button id="sekretarisPinSubmitBtn" type="button" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5">Masuk</button>
+      <button id="sekretarisPinSubmitBtn" type="button" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5 flex items-center justify-center gap-2"><span id="sekretarisPinSubmitBtnText">Masuk</span></button>
     </div>
   </div>
 </div>
@@ -643,6 +643,12 @@ hamburgerBtn.addEventListener('click', () => {
 });
 overlay.addEventListener('click', closeSidebarMobile);
 
+// Sidebar disembunyikan otomatis saat webapp pertama kali dibuka
+// (berlaku untuk tampilan mobile maupun desktop).
+closeSidebarMobile();
+sidebar.classList.remove('w-72');
+sidebar.classList.add('w-0', 'overflow-hidden');
+
 /* ==========================================================
    4b. NAVIGASI ANTAR VIEW (Form Input <-> Riwayat)
    ========================================================== */
@@ -820,12 +826,26 @@ async function submitSekretarisPin() {
     return;
   }
 
+  const sekretarisPinSubmitBtn = document.getElementById('sekretarisPinSubmitBtn');
+  const sekretarisPinSubmitBtnText = document.getElementById('sekretarisPinSubmitBtnText');
+  sekretarisPinSubmitBtn.disabled = true;
+  sekretarisPinSubmitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+  const sekretarisPinSpinner = document.createElement('span');
+  sekretarisPinSpinner.className = 'spinner';
+  sekretarisPinSubmitBtn.prepend(sekretarisPinSpinner);
+  sekretarisPinSubmitBtnText.textContent = 'Memproses...';
+
   let valid = false;
   try {
     valid = await gsCall('validateSekretarisLogin', userId, pin);
   } catch (err) {
     showToast('Gagal memverifikasi login: ' + err.message, 'error');
     return;
+  } finally {
+    sekretarisPinSubmitBtn.disabled = false;
+    sekretarisPinSubmitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+    sekretarisPinSpinner.remove();
+    sekretarisPinSubmitBtnText.textContent = 'Masuk';
   }
 
   if (valid) {
