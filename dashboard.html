@@ -61,6 +61,15 @@
   ::-webkit-scrollbar-thumb { background: #aee2c8; border-radius: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
 
+  .spinner {
+    border: 2.5px solid rgba(255,255,255,0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    width: 16px; height: 16px;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .leaderboard-row:hover { background-color: #eefaf4; }
 
   .rank-badge {
@@ -397,7 +406,7 @@
     <p id="pinError" class="hidden text-red-500 text-xs mb-2 text-center">User ID atau PIN salah. Silakan coba lagi.</p>
     <div class="flex gap-2 mt-3">
       <button id="pinCancelBtn" class="flex-1 rounded-xl border border-wahdah-200 text-wahdah-700 font-medium text-sm py-2.5 hover:bg-wahdah-50">Batal</button>
-      <button id="pinSubmitBtn" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5">Masuk</button>
+      <button id="pinSubmitBtn" class="flex-1 rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white font-medium text-sm py-2.5 flex items-center justify-center gap-2"><span id="pinSubmitBtnText">Masuk</span></button>
     </div>
   </div>
 </div>
@@ -643,6 +652,12 @@ hamburgerBtn.addEventListener('click', () => {
 });
 overlay.addEventListener('click', closeSidebarMobile);
 
+// Sidebar disembunyikan otomatis saat webapp pertama kali dibuka
+// (berlaku untuk tampilan mobile maupun desktop).
+closeSidebarMobile();
+sidebar.classList.remove('w-72');
+sidebar.classList.add('w-0', 'overflow-hidden');
+
 /* ==========================================================
    3b. NAVIGASI ANTAR VIEW (Dashboard Capaian KPI <-> Riwayat Inputan Data)
    Hanya bisa diakses SETELAH login PIN berhasil - sebelum itu sidebar
@@ -747,12 +762,26 @@ async function submitPin() {
     return;
   }
 
+  const pinSubmitBtn = document.getElementById('pinSubmitBtn');
+  const pinSubmitBtnText = document.getElementById('pinSubmitBtnText');
+  pinSubmitBtn.disabled = true;
+  pinSubmitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+  const pinSpinner = document.createElement('span');
+  pinSpinner.className = 'spinner';
+  pinSubmitBtn.prepend(pinSpinner);
+  pinSubmitBtnText.textContent = 'Memproses...';
+
   let valid = false;
   try {
     valid = await gsCall('validateAdminLogin', userId, pin);
   } catch (err) {
     showToast('Gagal memverifikasi login: ' + err.message, 'error');
     return;
+  } finally {
+    pinSubmitBtn.disabled = false;
+    pinSubmitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+    pinSpinner.remove();
+    pinSubmitBtnText.textContent = 'Masuk';
   }
   if (valid) {
     state.dashboardUnlocked = true;
