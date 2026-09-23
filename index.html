@@ -162,6 +162,7 @@
               <option value="" disabled selected>Pilih jenis kegiatan...</option>
               <option value="Rapat Rutin Departemen">Rapat Rutin Departemen</option>
               <option value="Taklim Rutin">Taklim Rutin</option>
+              <option value="Keaktifan Tarbiyah">Keaktifan Tarbiyah</option>
               <option value="Kegiatan Event">Kegiatan Event</option>
               <option value="Olahraga Rutin">Olahraga Rutin</option>
               <option value="Pencapaian GSD">Pencapaian GSD</option>
@@ -190,13 +191,13 @@
           </div>
 
           <div id="field-lokasiTaklim" class="hidden fade-in">
-            <label class="block text-sm font-semibold text-wahdah-800 mb-1.5">Nama Lokasi Taklim <span class="text-red-500">*</span></label>
+            <label id="labelLokasiTaklim" class="block text-sm font-semibold text-wahdah-800 mb-1.5">Nama Lokasi Taklim <span class="text-red-500">*</span></label>
             <input id="lokasiTaklim" type="text" placeholder="Contoh: Masjid Wihdatul Ummah, Masjid Darul Hikmah..." class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
             <p class="err-msg hidden text-red-500 text-xs mt-1" data-for="lokasiTaklim">Isi nama lokasi taklim.</p>
           </div>
 
           <div id="field-pemateriTaklim" class="hidden fade-in">
-            <label class="block text-sm font-semibold text-wahdah-800 mb-1.5">Pemateri Taklim <span class="text-red-500">*</span></label>
+            <label id="labelPemateriTaklim" class="block text-sm font-semibold text-wahdah-800 mb-1.5">Pemateri Taklim <span class="text-red-500">*</span></label>
             <input id="pemateriTaklim" type="text" placeholder="Nama pemateri/ustadz..." class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none">
             <p class="err-msg hidden text-red-500 text-xs mt-1" data-for="pemateriTaklim">Isi nama pemateri taklim.</p>
           </div>
@@ -313,6 +314,7 @@
                 <option value="">Semua jenis</option>
                 <option value="Rapat Rutin Departemen">Rapat Rutin Departemen</option>
                 <option value="Taklim Rutin">Taklim Rutin</option>
+                <option value="Keaktifan Tarbiyah">Keaktifan Tarbiyah</option>
                 <option value="Kegiatan Event">Kegiatan Event</option>
                 <option value="Olahraga Rutin">Olahraga Rutin</option>
                 <option value="Pencapaian GSD">Pencapaian GSD</option>
@@ -494,6 +496,7 @@ const DUMMY_PENGURUS = [
 const KPI_SCORE_MAP = {
   'Rapat Rutin Departemen': 5,
   'Taklim Rutin': 5,
+  'Keaktifan Tarbiyah': 5,
   'Kegiatan Event': 10,
   'Olahraga Rutin': 5,
   'Pencapaian GSD': 15
@@ -547,6 +550,7 @@ const LOCAL_FALLBACK = {
     } else {
       let detail = {};
       if (jenis === 'Taklim Rutin') detail = { 'Lokasi Taklim': formData.lokasiTaklim, 'Pemateri': formData.pemateriTaklim, 'Catatan': formData.saranCatatan };
+      if (jenis === 'Keaktifan Tarbiyah') detail = { 'Lokasi Tarbiyah': formData.lokasiTaklim, 'Murobbi': formData.pemateriTaklim, 'Catatan': formData.saranCatatan };
       if (jenis === 'Kegiatan Event') detail = { 'Nama Event': (formData.namaEvent || []).join(', '), 'Catatan': formData.saranCatatan };
       if (jenis === 'Olahraga Rutin') detail = { 'Jenis Olahraga': formData.jenisOlahraga, 'Catatan': formData.saranCatatan };
       if (jenis === 'Pencapaian GSD') detail = { 'Nama Hasil GSD': formData.namaHasilGSD, 'Kategori Pembinaan': formData.kategoriPembinaan, 'No. HP': formData.noHpGSD };
@@ -755,12 +759,42 @@ function setTanggalKegiatanLabel(jenis) {
   }
 }
 
+// Field "Lokasi Taklim" & "Pemateri Taklim" dipakai bersama (reuse) oleh
+// jenis kegiatan "Taklim Rutin" DAN "Keaktifan Tarbiyah" - id elemen &
+// kolom data di sheet TETAP SAMA (lokasiTaklim/pemateriTaklim), hanya
+// labelnya saja yang disesuaikan konteks jenis kegiatannya, mengikuti
+// pola yang sama dengan setTanggalKegiatanLabel().
+const labelLokasiTaklimEl = document.getElementById('labelLokasiTaklim');
+const labelPemateriTaklimEl = document.getElementById('labelPemateriTaklim');
+const inputLokasiTaklimEl = document.getElementById('lokasiTaklim');
+const inputPemateriTaklimEl = document.getElementById('pemateriTaklim');
+const errLokasiTaklimEl = document.querySelector('.err-msg[data-for="lokasiTaklim"]');
+const errPemateriTaklimEl = document.querySelector('.err-msg[data-for="pemateriTaklim"]');
+function setLokasiPemateriLabel(jenis) {
+  if (jenis === 'Keaktifan Tarbiyah') {
+    labelLokasiTaklimEl.innerHTML = 'Nama Lokasi Tarbiyah <span class="text-red-500">*</span>';
+    inputLokasiTaklimEl.placeholder = 'Contoh: Rumah Ustadz, Masjid Wihdatul Ummah...';
+    errLokasiTaklimEl.textContent = 'Isi nama lokasi tarbiyah.';
+    labelPemateriTaklimEl.innerHTML = 'Nama Murobbi <span class="text-red-500">*</span>';
+    inputPemateriTaklimEl.placeholder = 'Nama murobbi...';
+    errPemateriTaklimEl.textContent = 'Isi nama murobbi.';
+  } else {
+    labelLokasiTaklimEl.innerHTML = 'Nama Lokasi Taklim <span class="text-red-500">*</span>';
+    inputLokasiTaklimEl.placeholder = 'Contoh: Masjid Wihdatul Ummah, Masjid Darul Hikmah...';
+    errLokasiTaklimEl.textContent = 'Isi nama lokasi taklim.';
+    labelPemateriTaklimEl.innerHTML = 'Pemateri Taklim <span class="text-red-500">*</span>';
+    inputPemateriTaklimEl.placeholder = 'Nama pemateri/ustadz...';
+    errPemateriTaklimEl.textContent = 'Isi nama pemateri taklim.';
+  }
+}
+
 jenisKegiatanEl.addEventListener('change', () => {
   const val = jenisKegiatanEl.value;
   resetDynamicFieldValues();
   setTanggalKegiatanLabel(val);
+  setLokasiPemateriLabel(val);
 
-  if (val === 'Taklim Rutin') {
+  if (val === 'Taklim Rutin' || val === 'Keaktifan Tarbiyah') {
     showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldLokasiTaklim, fieldPemateriTaklim, fieldUploadFoto, fieldSaranCatatan]);
   } else if (val === 'Kegiatan Event') {
     showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldNamaEvent, fieldUploadFoto, fieldSaranCatatan]);
@@ -1399,6 +1433,7 @@ function formatTanggalIndo(tgl) {
 const JENIS_BADGE_COLOR = {
   'Rapat Rutin Departemen': 'bg-wahdah-100 text-wahdah-700',
   'Taklim Rutin': 'bg-gold-400/20 text-gold-600',
+  'Keaktifan Tarbiyah': 'bg-teal-100 text-teal-700',
   'Kegiatan Event': 'bg-purple-100 text-purple-700',
   'Olahraga Rutin': 'bg-blue-100 text-blue-700',
   'Pencapaian GSD': 'bg-emerald-100 text-emerald-700'
@@ -1478,6 +1513,7 @@ function attachmentButtonHtml(link, label) {
 const RIWAYAT_HIDDEN_LABELS = {
   'Rapat Rutin Departemen': ['Rapat Ke-', 'Lokasi Rapat', 'Poin KPI'],
   'Taklim Rutin': ['Lokasi Taklim', 'Pemateri', 'Catatan', 'Poin KPI'],
+  'Keaktifan Tarbiyah': ['Lokasi Tarbiyah', 'Murobbi', 'Catatan', 'Poin KPI'],
   'Kegiatan Event': ['Nama Event', 'Catatan', 'Poin KPI'],
   'Olahraga Rutin': ['Jenis Olahraga', 'Catatan', 'Poin KPI'],
   'Pencapaian GSD': ['Nama Hasil GSD', 'Kategori Pembinaan', 'No. HP', 'Poin KPI']
