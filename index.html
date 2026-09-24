@@ -629,7 +629,11 @@ const overlay = document.getElementById('sidebarOverlay');
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 
 function openSidebarMobile() {
-  sidebar.classList.remove('-translate-x-full');
+  // Selalu pastikan lebar sidebar kembali normal (w-72) & hapus class
+  // collapse desktop (w-0/overflow-hidden), karena keduanya tidak punya
+  // prefix md: sehingga ikut aktif di mobile juga kalau sempat terpasang.
+  sidebar.classList.remove('-translate-x-full', 'w-0', 'overflow-hidden');
+  sidebar.classList.add('w-72');
   overlay.classList.remove('hidden');
 }
 function closeSidebarMobile() {
@@ -647,11 +651,16 @@ hamburgerBtn.addEventListener('click', () => {
 });
 overlay.addEventListener('click', closeSidebarMobile);
 
-// Sidebar disembunyikan otomatis saat webapp pertama kali dibuka
-// (berlaku untuk tampilan mobile maupun desktop).
+// Sidebar disembunyikan otomatis saat webapp pertama kali dibuka.
+// Class w-0/overflow-hidden HANYA untuk collapse di desktop (>=768px):
+// di mobile sidebar sudah tersembunyi lewat -translate-x-full, jadi
+// tidak perlu (dan tidak boleh) di-set w-0 juga, karena openSidebarMobile()
+// tidak akan bisa menampilkannya lagi kalau lebarnya 0.
 closeSidebarMobile();
-sidebar.classList.remove('w-72');
-sidebar.classList.add('w-0', 'overflow-hidden');
+if (window.innerWidth >= 768) {
+  sidebar.classList.remove('w-72');
+  sidebar.classList.add('w-0', 'overflow-hidden');
+}
 
 /* ==========================================================
    4b. NAVIGASI ANTAR VIEW (Form Input <-> Riwayat)
