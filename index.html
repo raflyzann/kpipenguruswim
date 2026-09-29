@@ -187,6 +187,7 @@
           <div id="field-tanggalKegiatan" class="hidden fade-in">
             <label id="labelTanggalKegiatan" class="block text-sm font-semibold text-wahdah-800 mb-1.5">Tanggal Kegiatan <span class="text-red-500">*</span></label>
             <input id="tanggalKegiatan" type="date" class="w-full rounded-xl border border-wahdah-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+            <p id="hintTanggalKegiatan" class="hidden text-wahdah-400 text-xs mt-1"></p>
             <p class="err-msg hidden text-red-500 text-xs mt-1" data-for="tanggalKegiatan">Isi tanggal kegiatan.</p>
           </div>
 
@@ -797,11 +798,70 @@ function setLokasiPemateriLabel(jenis) {
   }
 }
 
+// Pembatasan rentang tanggal kegiatan (anti-kecurangan): untuk 5 jenis
+// kegiatan di bawah ini, tanggal yang boleh dipilih dibatasi H-1 s/d
+// H+1 dari HARI INI (3 hari termasuk hari ini). Ini HANYA lapis UX di
+// frontend (mengunci kalender & mencegah salah pilih) - validasi yang
+// benar-benar menentukan (anti-manipulasi lewat luar form) ada di
+// backend Code.gs (submitLaporan), berpatokan ke tanggal server
+// (WITA), bukan tanggal perangkat pengguna. "Rapat Rutin Departemen"
+// (field tanggalRapat) & filter tanggal di halaman Riwayat/Dashboard
+// SENGAJA TIDAK dibatasi.
+const JENIS_TANGGAL_DIBATASI = ['Taklim Rutin', 'Keaktifan Tarbiyah', 'Kegiatan Event', 'Olahraga Rutin', 'Pencapaian GSD'];
+const tanggalKegiatanInputEl = document.getElementById('tanggalKegiatan');
+const hintTanggalKegiatanEl = document.getElementById('hintTanggalKegiatan');
+
+function formatYMD_(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getRentangTanggalKegiatan_() {
+  const now = new Date();
+  const minD = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const maxD = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  return { min: formatYMD_(minD), max: formatYMD_(maxD) };
+}
+
+function applyBatasTanggalKegiatan(jenis) {
+  if (JENIS_TANGGAL_DIBATASI.includes(jenis)) {
+    const { min, max } = getRentangTanggalKegiatan_();
+    tanggalKegiatanInputEl.min = min;
+    tanggalKegiatanInputEl.max = max;
+    hintTanggalKegiatanEl.textContent = `Hanya bisa pilih tanggal ${formatTanggalIndo(min)} s/d ${formatTanggalIndo(max)}.`;
+    hintTanggalKegiatanEl.classList.remove('hidden');
+  } else {
+    tanggalKegiatanInputEl.removeAttribute('min');
+    tanggalKegiatanInputEl.removeAttribute('max');
+    hintTanggalKegiatanEl.classList.add('hidden');
+  }
+}
+
+// Jaga-jaga kalau ada browser/perangkat yang tetap mengizinkan tanggal
+// di luar rentang ter-input (mis. lewat ketik manual) - begitu
+// tanggalnya berubah, langsung dikosongkan lagi kalau di luar batas.
+tanggalKegiatanInputEl.addEventListener('change', () => {
+  const jenis = jenisKegiatanEl.value;
+  if (!JENIS_TANGGAL_DIBATASI.includes(jenis)) return;
+  const { min, max } = getRentangTanggalKegiatan_();
+  const val = tanggalKegiatanInputEl.value;
+  if (val && (val < min || val > max)) {
+    tanggalKegiatanInputEl.value = '';
+    errTanggalKegiatanEl.textContent = `Tanggal harus antara ${formatTanggalIndo(min)} s/d ${formatTanggalIndo(max)}.`;
+    showError('tanggalKegiatan');
+  } else {
+    errTanggalKegiatanEl.textContent = 'Isi tanggal kegiatan.';
+  }
+});
+
 jenisKegiatanEl.addEventListener('change', () => {
   const val = jenisKegiatanEl.value;
   resetDynamicFieldValues();
   setTanggalKegiatanLabel(val);
   setLokasiPemateriLabel(val);
+  applyBatasTanggalKegiatan(val);
 
   if (val === 'Taklim Rutin' || val === 'Keaktifan Tarbiyah') {
     showFields([fieldNama, fieldDepartemen, fieldTanggalKegiatan, fieldLokasiTaklim, fieldPemateriTaklim, fieldUploadFoto, fieldSaranCatatan]);
@@ -975,7 +1035,20 @@ function loadDraft() {
     }
     if (draft.lokasiTaklim) document.getElementById('lokasiTaklim').value = draft.lokasiTaklim;
     if (draft.pemateriTaklim) document.getElementById('pemateriTaklim').value = draft.pemateriTaklim;
-    if (draft.tanggalKegiatan) document.getElementById('tanggalKegiatan').value = draft.tanggalKegiatan;
+    if (draft.tanggalKegiatan) {
+      document.getElementById('tanggalKegiatan').value = draft.tanggalKegiatan;
+      // Draft bisa saja dibuat beberapa hari lalu, jadi tanggalnya perlu
+      // dicek ulang terhadap rentang H-1/H+1 HARI INI (bukan rentang saat
+      // draft disimpan) - kalau sudah di luar batas, kosongkan otomatis
+      // supaya user wajib pilih ulang tanggal yang masih valid.
+      if (JENIS_TANGGAL_DIBATASI.includes(draft.jenisKegiatan)) {
+        const { min, max } = getRentangTanggalKegiatan_();
+        if (draft.tanggalKegiatan < min || draft.tanggalKegiatan > max) {
+          document.getElementById('tanggalKegiatan').value = '';
+          showToast('Tanggal pada draft sudah di luar batas yang diizinkan, silakan pilih ulang.', 'error');
+        }
+      }
+    }
     if (draft.tanggalRapat) document.getElementById('tanggalRapat').value = draft.tanggalRapat;
     if (draft.pilihDepartemen) {
       pilihDepartemenEl.value = draft.pilihDepartemen;
@@ -1141,7 +1214,18 @@ function validateForm() {
   }
 
   if (isFieldVisible(fieldTanggalKegiatan)) {
-    if (!document.getElementById('tanggalKegiatan').value) { showError('tanggalKegiatan'); valid = false; }
+    const tglVal = document.getElementById('tanggalKegiatan').value;
+    if (!tglVal) {
+      showError('tanggalKegiatan');
+      valid = false;
+    } else if (JENIS_TANGGAL_DIBATASI.includes(jenis)) {
+      const { min, max } = getRentangTanggalKegiatan_();
+      if (tglVal < min || tglVal > max) {
+        errTanggalKegiatanEl.textContent = `Tanggal harus antara ${formatTanggalIndo(min)} s/d ${formatTanggalIndo(max)}.`;
+        showError('tanggalKegiatan');
+        valid = false;
+      }
+    }
   }
 
   if (isFieldVisible(fieldLokasiTaklim)) {
