@@ -113,12 +113,17 @@
     <nav class="flex-1 px-4 py-6 space-y-1.5">
       <p class="px-3 text-[11px] uppercase tracking-wider text-wahdah-300 font-semibold mb-2">Menu Utama</p>
 
-      <button type="button" id="navFormInput" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white transition-colors">
+      <button type="button" id="navFormInput" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white transition-colors text-left">
         <i class="fa-solid fa-pen-to-square w-5 text-center"></i>
         <span>Form Input Keaktifan/Pencapaian</span>
       </button>
 
-      <button type="button" id="navRiwayat" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
+      <a href="https://drive.google.com/drive/folders/1CkxCjUa9D84ONwFxSlNyA-E_3vZ6ivkR?usp=sharing" target="_blank" rel="noopener noreferrer" id="navDownloadNotulen" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors text-left">
+        <i class="fa-solid fa-download w-5 text-center"></i>
+        <span>Download Format Notulen Rapat</span>
+      </a>
+
+      <button type="button" id="navRiwayat" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors text-left">
         <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
         <span>Riwayat Inputan Data</span>
       </button>
@@ -705,6 +710,15 @@ function goToView(view) {
 
 navFormInput.addEventListener('click', () => goToView('form'));
 navRiwayat.addEventListener('click', () => goToView('riwayat'));
+
+// "Download Format Notulen Rapat" bukan view di dalam app (cuma link
+// eksternal ke Google Drive yang dibuka di tab baru), jadi tidak ikut
+// sistem goToView()/setActiveNav() - cukup tutup sidebar mobile saja
+// biar konsisten dengan 2 menu lain setelah diklik.
+const navDownloadNotulen = document.getElementById('navDownloadNotulen');
+navDownloadNotulen.addEventListener('click', () => {
+  if (window.innerWidth < 768) closeSidebarMobile();
+});
 
 /* ==========================================================
    5. FORM DINAMIS - referensi elemen
