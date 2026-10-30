@@ -590,7 +590,10 @@
        backend (Code.gs) yang sama.
        ========================================================== */
     // Backend API URL:
-    const SCRIPT_URL = './api.php';
+    // Jika dibuka di Vercel, panggil API backend hosting. Jika dibuka di hosting, gunakan ./api.php
+    const SCRIPT_URL = window.location.hostname.includes('vercel.app')
+      ? 'https://kpipengurus.wahdahislamiyahmakassar.my.id/api.php'
+      : './api.php';
 
     const IS_CONFIGURED = Boolean(SCRIPT_URL && SCRIPT_URL.trim().length > 0);
 
