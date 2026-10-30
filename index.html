@@ -590,13 +590,7 @@
        backend (Code.gs) yang sama.
        ========================================================== */
     // Backend API URL:
-    // Terhubung langsung ke database hosting (MySQL) via HTTPS
-    const SCRIPT_URL = (() => {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return './api.php';
-      }
-      return 'https://wahdahislamiyahmakassar.my.id/api.php';
-    })();
+    const SCRIPT_URL = './api.php';
 
     const IS_CONFIGURED = Boolean(SCRIPT_URL && SCRIPT_URL.trim().length > 0);
 
