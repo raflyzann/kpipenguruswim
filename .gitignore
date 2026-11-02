@@ -1,0 +1,10 @@
+# Folder uploads: jangan commit file-file foto dan dokumen hasil upload
+/uploads/foto/*
+!/uploads/foto/.gitkeep
+/uploads/dokumen/*
+!/uploads/dokumen/.gitkeep
+
+# File konfigurasi lokal / OS
+.DS_Store
+Thumbs.db
+*.log
