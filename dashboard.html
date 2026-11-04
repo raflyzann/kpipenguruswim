@@ -220,6 +220,18 @@
           <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
           <span>Riwayat Inputan Data</span>
         </button>
+
+        <button type="button" id="navPengurus"
+          class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
+          <i class="fa-solid fa-users w-5 text-center"></i>
+          <span>Data Pengurus</span>
+        </button>
+
+        <button type="button" id="navLimit"
+          class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors">
+          <i class="fa-solid fa-sliders w-5 text-center"></i>
+          <span>Pengaturan Limit</span>
+        </button>
       </nav>
 
       <div class="px-6 py-5 border-t border-white/10 text-[11px] text-wahdah-300">
@@ -562,6 +574,190 @@
           </div>
         </section>
 
+        <!-- ============ VIEW: PENGATURAN LIMIT ============ -->
+        <section id="viewLimit" class="hidden view-fade max-w-4xl mx-auto space-y-5">
+          <div class="bg-white rounded-2xl border border-wahdah-100 shadow-soft p-5 md:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div>
+                <h2 class="text-base font-bold text-wahdah-900">Batas Frekuensi Penginputan (Limit)</h2>
+                <p class="text-xs text-wahdah-500 mt-0.5">Atur batas maksimal penginputan kegiatan per minggu & per bulan untuk mencegah manipulasi atau penginputan berlebih.</p>
+              </div>
+              <button id="refreshLimitBtn" type="button" class="self-start sm:self-auto px-3.5 py-2 text-xs font-semibold rounded-xl bg-wahdah-50 text-wahdah-700 hover:bg-wahdah-100 border border-wahdah-200 transition-colors flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-arrows-rotate"></i> Muat Ulang
+              </button>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-wahdah-100">
+              <table class="w-full text-sm">
+                <thead class="bg-wahdah-50/70 border-b border-wahdah-100 text-wahdah-600 text-xs uppercase font-semibold">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Jenis Kegiatan</th>
+                    <th class="px-4 py-3 text-center w-44">Maks per Minggu</th>
+                    <th class="px-4 py-3 text-center w-44">Maks per Bulan</th>
+                    <th class="px-4 py-3 text-center w-28">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="limitTableBody" class="divide-y divide-wahdah-100">
+                  <tr>
+                    <td colspan="4" class="text-center py-8 text-wahdah-400 text-sm">
+                      <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data limit...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-4 p-4 bg-wahdah-50/70 rounded-xl border border-wahdah-100 text-xs text-wahdah-600 flex items-start gap-3">
+              <i class="fa-solid fa-circle-info text-wahdah-600 text-sm mt-0.5"></i>
+              <div class="space-y-1">
+                <p class="font-semibold text-wahdah-800">Catatan & Aturan Validasi:</p>
+                <ul class="list-disc list-inside space-y-0.5 text-wahdah-700">
+                  <li><strong>Rapat Rutin Departemen</strong>: Limit dihitung per departemen (berdasarkan tanggal kegiatan rapat).</li>
+                  <li><strong>Taklim Rutin, Keaktifan Tarbiyah, Olahraga Rutin</strong>: Limit dihitung per individu pengurus.</li>
+                  <li>Masukkan angka <strong>0</strong> jika ingin membebaskan limit (tanpa batas frekuensi).</li>
+                  <li>Pengaturan tersimpan langsung ke database MySQL (tabel <code>pengaturan_limit</code>) dan langsung aktif saat pengurus mengirim laporan.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ VIEW: DATA PENGURUS ============ -->
+        <section id="viewPengurus" class="hidden view-fade max-w-6xl mx-auto space-y-5">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-wahdah-50 text-wahdah-700 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-users text-lg"></i>
+                </div>
+                <div>
+                  <p class="text-wahdah-500 text-xs font-medium">Total Pengurus</p>
+                  <p id="statPengurusTotal" class="text-xl font-bold text-wahdah-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-building text-lg"></i>
+                </div>
+                <div>
+                  <p class="text-wahdah-500 text-xs font-medium">Departemen</p>
+                  <p id="statPengurusDept" class="text-xl font-bold text-wahdah-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-user-pen text-lg"></i>
+                </div>
+                <div>
+                  <p class="text-wahdah-500 text-xs font-medium">Sekretaris</p>
+                  <p id="statPengurusSekre" class="text-xl font-bold text-wahdah-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-wahdah-100 shadow-softer p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-user-tie text-lg"></i>
+                </div>
+                <div>
+                  <p class="text-wahdah-500 text-xs font-medium">Ketua Dept</p>
+                  <p id="statPengurusKetua" class="text-xl font-bold text-wahdah-900">0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Table Card -->
+          <div class="bg-white rounded-2xl border border-wahdah-100 shadow-soft p-5 md:p-6">
+            <!-- Header bar with buttons -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div>
+                <h2 class="text-base font-bold text-wahdah-900">Master Data Pengurus</h2>
+                <p class="text-xs text-wahdah-500 mt-0.5">Kelola data seluruh pengurus, nomor WhatsApp untuk login, dan hak akses sekretaris / ketua departemen.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="refreshPengurusBtn" type="button"
+                  class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-wahdah-50 text-wahdah-700 hover:bg-wahdah-100 border border-wahdah-200 transition-colors flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-arrows-rotate"></i> Muat Ulang
+                </button>
+                <button id="addPengurusBtn" type="button"
+                  class="px-4 py-2 text-xs font-semibold rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white transition-colors flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-user-plus"></i> Tambah Pengurus
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1">Cari Nama / No. HP</label>
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wahdah-300 text-xs"></i>
+                  <input id="searchPengurus" type="text" placeholder="Ketik nama atau nomor HP..."
+                    class="w-full rounded-xl border border-wahdah-200 pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1">Filter Departemen</label>
+                <select id="filterDeptPengurus"
+                  class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+                  <option value="">Semua Departemen</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-wahdah-700 mb-1">Filter Peran / Akses</label>
+                <select id="filterPeranPengurus"
+                  class="w-full rounded-xl border border-wahdah-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 focus:border-wahdah-400 outline-none bg-white">
+                  <option value="">Semua Peran</option>
+                  <option value="sekretaris">Sekretaris Saja</option>
+                  <option value="ketua">Ketua Departemen Saja</option>
+                  <option value="has_hp">Punya Nomor HP</option>
+                  <option value="no_hp">Belum Ada Nomor HP</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Desktop View: Table -->
+            <div class="hidden md:block overflow-x-auto rounded-xl border border-wahdah-100">
+              <table class="w-full text-sm">
+                <thead class="bg-wahdah-50/70 border-b border-wahdah-100 text-wahdah-600 text-xs uppercase font-semibold">
+                  <tr>
+                    <th class="px-4 py-3 text-left w-12">No</th>
+                    <th class="px-4 py-3 text-left">Nama Pengurus</th>
+                    <th class="px-4 py-3 text-left">Departemen</th>
+                    <th class="px-4 py-3 text-left">Jabatan</th>
+                    <th class="px-4 py-3 text-left">No. HP (Login)</th>
+                    <th class="px-4 py-3 text-center">Hak Akses</th>
+                    <th class="px-4 py-3 text-center w-28">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="pengurusTableBody" class="divide-y divide-wahdah-100">
+                  <tr>
+                    <td colspan="7" class="text-center py-10 text-wahdah-400 text-sm">
+                      <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data pengurus...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile View: Cards -->
+            <div id="pengurusCardsMobile" class="block md:hidden divide-y divide-wahdah-100 p-1 space-y-3">
+              <div class="text-center py-10 text-wahdah-400 text-sm">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data pengurus...
+              </div>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div id="pengurusPagination"
+              class="flex flex-wrap items-center justify-between gap-3 px-2 pt-4 border-t border-wahdah-100 text-sm"></div>
+          </div>
+        </section>
+
         <!-- Ditampilkan selama belum login -->
         <div id="lockedNotice" class="max-w-md mx-auto text-center py-16 text-wahdah-400">
           <i class="fa-solid fa-lock text-3xl mb-3"></i>
@@ -661,6 +857,111 @@
         </button>
       </div>
       <div id="riwayatRapatDetailBody" class="px-5 py-4 space-y-4 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Modal Form Tambah / Edit Pengurus -->
+  <div id="pengurusModal" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-soft max-w-lg w-full max-h-[90vh] overflow-y-auto my-auto view-fade">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-wahdah-100 sticky top-0 bg-white z-10">
+        <div>
+          <h3 id="pengurusModalTitle" class="font-bold text-wahdah-900 text-base">Tambah Pengurus Baru</h3>
+          <p class="text-xs text-wahdah-500">Isi informasi pengurus dengan lengkap</p>
+        </div>
+        <button id="pengurusModalCloseBtn" type="button"
+          class="w-8 h-8 rounded-lg hover:bg-wahdah-50 text-wahdah-500 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="pengurusForm" class="p-6 space-y-4 text-sm">
+        <input type="hidden" id="formPengurusId" value="">
+
+        <div>
+          <label class="block text-xs font-semibold text-wahdah-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+          <input type="text" id="formPengurusNama" required placeholder="Contoh: Ahmad Fauzi, S.Pd."
+            class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-wahdah-700 mb-1">Departemen <span class="text-red-500">*</span></label>
+          <input type="text" id="formPengurusDepartemen" required list="departemenDatalist" placeholder="Pilih atau ketik departemen..."
+            class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+          <datalist id="departemenDatalist"></datalist>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-wahdah-700 mb-1">Status / Jabatan</label>
+            <input type="text" id="formPengurusStatus" placeholder="Anggota / Ketua / Bendahara"
+              class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-wahdah-700 mb-1">Nomor HP (WhatsApp)</label>
+            <input type="tel" id="formPengurusNoHp" placeholder="081234567890"
+              class="w-full rounded-xl border border-wahdah-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+            <p class="text-[11px] text-wahdah-400 mt-1">Digunakan pengurus untuk login aplikasi.</p>
+          </div>
+        </div>
+
+        <div class="bg-wahdah-50/60 p-4 rounded-xl border border-wahdah-100 space-y-3">
+          <p class="text-xs font-semibold text-wahdah-800">Hak Akses Khusus:</p>
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="formPengurusSekretaris"
+              class="mt-0.5 rounded border-wahdah-300 text-wahdah-700 focus:ring-wahdah-400 w-4 h-4">
+            <div>
+              <span class="text-xs font-semibold text-wahdah-800">Sekretaris Departemen</span>
+              <p class="text-[11px] text-wahdah-500">Dapat menginput Laporan Rapat Rutin, absensi rapat, dan melihat link format notulen.</p>
+            </div>
+          </label>
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="formPengurusKetuaDept"
+              class="mt-0.5 rounded border-wahdah-300 text-wahdah-700 focus:ring-wahdah-400 w-4 h-4">
+            <div>
+              <span class="text-xs font-semibold text-wahdah-800">Ketua Departemen</span>
+              <p class="text-[11px] text-wahdah-500">Dapat membuka menu Riwayat Rapat untuk departemennya (dan departemen tambahan di bawah).</p>
+            </div>
+          </label>
+
+          <div id="wrapperAksesDept" class="pt-2 border-t border-wahdah-100">
+            <label class="block text-xs font-semibold text-wahdah-700 mb-1">Akses Departemen Tambahan (Opsional)</label>
+            <input type="text" id="formPengurusAksesDept" placeholder="Pisahkan dengan koma jika lebih dari satu"
+              class="w-full rounded-xl border border-wahdah-200 px-3 py-2 text-xs focus:ring-2 focus:ring-wahdah-400 outline-none bg-white">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-wahdah-100">
+          <button type="button" id="pengurusModalCancelBtn"
+            class="px-4 py-2 text-xs font-semibold rounded-xl bg-wahdah-50 text-wahdah-700 hover:bg-wahdah-100 border border-wahdah-200 transition-colors">
+            Batal
+          </button>
+          <button type="submit" id="pengurusModalSaveBtn"
+            class="px-5 py-2 text-xs font-semibold rounded-xl bg-wahdah-700 hover:bg-wahdah-800 text-white transition-colors flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus Pengurus -->
+  <div id="deletePengurusModal" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/50">
+    <div class="bg-white rounded-2xl shadow-soft max-w-sm w-full p-6 text-center view-fade">
+      <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+      <h3 class="font-bold text-wahdah-900 text-base mb-1">Hapus Data Pengurus?</h3>
+      <p class="text-xs text-wahdah-500 mb-4">Apakah Anda yakin ingin menghapus <strong id="deletePengurusNama" class="text-wahdah-800"></strong> dari sistem? Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="flex items-center justify-center gap-2.5">
+        <button type="button" id="deletePengurusCancelBtn"
+          class="px-4 py-2 text-xs font-semibold rounded-xl bg-wahdah-50 text-wahdah-700 hover:bg-wahdah-100 border border-wahdah-200 transition-colors">
+          Batal
+        </button>
+        <button type="button" id="deletePengurusConfirmBtn"
+          class="px-5 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-colors flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-trash"></i> Ya, Hapus
+        </button>
+      </div>
     </div>
   </div>
 
@@ -934,6 +1235,54 @@
           total: filtered.length,
           departemenList
         };
+      },
+      getPengaturanLimit: () => {
+        return {
+          success: true,
+          data: [
+            { id: 1, jenis_kegiatan: 'Rapat Rutin Departemen', maks_per_minggu: 1, maks_per_bulan: 5 },
+            { id: 2, jenis_kegiatan: 'Taklim Rutin', maks_per_minggu: 1, maks_per_bulan: 5 },
+            { id: 3, jenis_kegiatan: 'Keaktifan Tarbiyah', maks_per_minggu: 1, maks_per_bulan: 5 },
+            { id: 4, jenis_kegiatan: 'Olahraga Rutin', maks_per_minggu: 1, maks_per_bulan: 5 }
+          ]
+        };
+      },
+      updatePengaturanLimit: (userId, pin, id, maksMinggu, maksBulan) => {
+        return { success: true, message: 'Pengaturan limit berhasil diperbarui (preview mode).' };
+      },
+      getPengurusListAdmin: (userId, pin) => {
+        return {
+          success: true,
+          data: DUMMY_PENGURUS.map((p, i) => ({
+            id: i + 1,
+            nama: p.nama,
+            departemen: p.departemen,
+            status: p.status || 'Anggota',
+            no_hp: p.noHp || '',
+            sekretaris: p.sekretaris ? 1 : 0,
+            ketua_departemen: p.ketuaDepartemen ? 1 : 0,
+            akses_departemen: p.aksesDepartemen ? p.aksesDepartemen.join(', ') : ''
+          }))
+        };
+      },
+      createPengurusAdmin: (userId, pin, data) => {
+        const newId = DUMMY_PENGURUS.length + 1;
+        DUMMY_PENGURUS.push({
+          nama: data.nama,
+          departemen: data.departemen,
+          status: data.status,
+          noHp: data.no_hp,
+          sekretaris: data.sekretaris,
+          ketuaDepartemen: data.ketua_departemen,
+          aksesDepartemen: data.akses_departemen ? [data.akses_departemen] : []
+        });
+        return { success: true, message: 'Pengurus baru berhasil ditambahkan (preview mode).', id: newId };
+      },
+      updatePengurusAdmin: (userId, pin, id, data) => {
+        return { success: true, message: 'Data pengurus berhasil diperbarui (preview mode).' };
+      },
+      deletePengurusAdmin: (userId, pin, id) => {
+        return { success: true, message: 'Pengurus berhasil dihapus (preview mode).' };
       }
     };
 
@@ -1003,15 +1352,19 @@
     const navRiwayat = document.getElementById('navRiwayat');
     const navRekapRapat = document.getElementById('navRekapRapat');
     const navRiwayatRapat = document.getElementById('navRiwayatRapat');
+    const navPengurus = document.getElementById('navPengurus');
+    const navLimit = document.getElementById('navLimit');
     const viewDashboardSection = document.getElementById('view-dashboard');
     const viewRiwayatSection = document.getElementById('viewRiwayat');
     const viewRekapRapatSection = document.getElementById('viewRekapRapat');
     const viewRiwayatRapatSection = document.getElementById('viewRiwayatRapat');
+    const viewPengurusSection = document.getElementById('viewPengurus');
+    const viewLimitSection = document.getElementById('viewLimit');
     const pageTitle = document.getElementById('pageTitle');
     const pageSubtitle = document.getElementById('pageSubtitle');
 
     function setActiveNav(activeBtn) {
-      [navDashboard, navRiwayat, navRekapRapat, navRiwayatRapat].forEach(btn => {
+      [navDashboard, navRiwayat, navRekapRapat, navRiwayatRapat, navPengurus, navLimit].forEach(btn => {
         if (!btn) return;
         btn.classList.remove('bg-white/10', 'text-white');
         btn.classList.add('text-wahdah-100');
@@ -1031,6 +1384,8 @@
       viewRiwayatSection.classList.add('hidden');
       viewRekapRapatSection.classList.add('hidden');
       viewRiwayatRapatSection.classList.add('hidden');
+      if (viewPengurusSection) viewPengurusSection.classList.add('hidden');
+      if (viewLimitSection) viewLimitSection.classList.add('hidden');
 
       if (view === 'riwayat') {
         viewRiwayatSection.classList.remove('hidden');
@@ -1056,6 +1411,26 @@
         setActiveNav(navRiwayatRapat);
         if (!riwayatRapatState.loaded) loadRiwayatRapat();
         if (window.innerWidth < 768) closeSidebarMobile();
+      } else if (view === 'pengurus') {
+        if (viewPengurusSection) {
+          viewPengurusSection.classList.remove('hidden');
+          viewPengurusSection.classList.remove('view-fade'); void viewPengurusSection.offsetWidth; viewPengurusSection.classList.add('view-fade');
+        }
+        pageTitle.textContent = 'Data Pengurus';
+        pageSubtitle.textContent = 'Kelola master data pengurus, departemen, nomor WhatsApp, dan hak akses';
+        setActiveNav(navPengurus);
+        if (!pengurusState.loaded) loadPengurusList();
+        if (window.innerWidth < 768) closeSidebarMobile();
+      } else if (view === 'limit') {
+        if (viewLimitSection) {
+          viewLimitSection.classList.remove('hidden');
+          viewLimitSection.classList.remove('view-fade'); void viewLimitSection.offsetWidth; viewLimitSection.classList.add('view-fade');
+        }
+        pageTitle.textContent = 'Pengaturan Limit';
+        pageSubtitle.textContent = 'Atur batas maksimal frekuensi inputan mingguan & bulanan per kegiatan';
+        setActiveNav(navLimit);
+        loadPengaturanLimit();
+        if (window.innerWidth < 768) closeSidebarMobile();
       } else {
         viewDashboardSection.classList.remove('hidden');
         viewDashboardSection.classList.remove('view-fade'); void viewDashboardSection.offsetWidth; viewDashboardSection.classList.add('view-fade');
@@ -1070,6 +1445,8 @@
     navRiwayat.addEventListener('click', () => goToView('riwayat'));
     navRekapRapat.addEventListener('click', () => goToView('rekapRapat'));
     navRiwayatRapat.addEventListener('click', () => goToView('riwayatRapat'));
+    if (navPengurus) navPengurus.addEventListener('click', () => goToView('pengurus'));
+    if (navLimit) navLimit.addEventListener('click', () => goToView('limit'));
 
     /* ==========================================================
        4. LOGIN MODAL (User ID + PIN) - terbuka otomatis saat halaman dimuat
@@ -2219,6 +2596,514 @@
         openRiwayatRapatDetail(row);
       });
     });
+
+    /* ==========================================================
+       7b. PENGATURAN LIMIT
+       ========================================================== */
+    const limitTableBody = document.getElementById('limitTableBody');
+    const refreshLimitBtn = document.getElementById('refreshLimitBtn');
+
+    async function loadPengaturanLimit() {
+      if (!limitTableBody) return;
+      limitTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data limit...</td></tr>`;
+
+      try {
+        const res = await gsCall('getPengaturanLimit');
+        if (!res || !res.success || !Array.isArray(res.data)) {
+          limitTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-500 text-sm">Gagal memuat pengaturan limit.</td></tr>`;
+          return;
+        }
+
+        if (res.data.length === 0) {
+          limitTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-wahdah-400 text-sm">Belum ada data pengaturan limit.</td></tr>`;
+          return;
+        }
+
+        limitTableBody.innerHTML = res.data.map(item => `
+          <tr class="hover:bg-wahdah-50/40 transition-colors" data-id="${item.id}">
+            <td class="px-4 py-3.5 font-medium text-wahdah-900">${escapeHtml(item.jenis_kegiatan)}</td>
+            <td class="px-4 py-3.5 text-center">
+              <input type="number" min="0" value="${item.maks_per_minggu ?? 0}" id="limitMinggu_${item.id}"
+                class="w-24 text-center px-2 py-1.5 rounded-lg border border-wahdah-200 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+            </td>
+            <td class="px-4 py-3.5 text-center">
+              <input type="number" min="0" value="${item.maks_per_bulan ?? 0}" id="limitBulan_${item.id}"
+                class="w-24 text-center px-2 py-1.5 rounded-lg border border-wahdah-200 text-sm focus:ring-2 focus:ring-wahdah-400 outline-none">
+            </td>
+            <td class="px-4 py-3.5 text-center">
+              <button type="button" onclick="saveLimitRow(${item.id})" id="saveBtn_${item.id}"
+                class="px-3.5 py-1.5 rounded-lg bg-wahdah-700 hover:bg-wahdah-800 text-white text-xs font-semibold shadow-sm transition-colors">
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        limitTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-500 text-sm">Terjadi kesalahan: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    window.saveLimitRow = async function(id) {
+      const btn = document.getElementById(`saveBtn_${id}`);
+      const inputMinggu = document.getElementById(`limitMinggu_${id}`);
+      const inputBulan = document.getElementById(`limitBulan_${id}`);
+      if (!inputMinggu || !inputBulan) return;
+
+      const maksMinggu = parseInt(inputMinggu.value, 10) || 0;
+      const maksBulan = parseInt(inputBulan.value, 10) || 0;
+
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i>...`;
+
+      try {
+        const res = await gsCall('updatePengaturanLimit', state.adminUserId, state.adminPin, id, maksMinggu, maksBulan);
+        if (res && res.success) {
+          showToast('Pengaturan limit berhasil disimpan.', 'success');
+        } else {
+          showToast((res && res.message) ? res.message : 'Gagal menyimpan pengaturan limit.', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
+      }
+    };
+
+    if (refreshLimitBtn) {
+      refreshLimitBtn.addEventListener('click', loadPengaturanLimit);
+    }
+
+    /* ==========================================================
+       7c. DATA PENGURUS (CRUD)
+       ========================================================== */
+    const pengurusState = {
+      list: [],
+      filtered: [],
+      page: 1,
+      pageSize: 15,
+      loaded: false,
+      deleteTargetId: null
+    };
+
+    const pengurusTableBody = document.getElementById('pengurusTableBody');
+    const pengurusCardsMobile = document.getElementById('pengurusCardsMobile');
+    const pengurusPagination = document.getElementById('pengurusPagination');
+    const searchPengurus = document.getElementById('searchPengurus');
+    const filterDeptPengurus = document.getElementById('filterDeptPengurus');
+    const filterPeranPengurus = document.getElementById('filterPeranPengurus');
+    const refreshPengurusBtn = document.getElementById('refreshPengurusBtn');
+    const addPengurusBtn = document.getElementById('addPengurusBtn');
+
+    const pengurusModal = document.getElementById('pengurusModal');
+    const pengurusModalCloseBtn = document.getElementById('pengurusModalCloseBtn');
+    const pengurusModalCancelBtn = document.getElementById('pengurusModalCancelBtn');
+    const pengurusForm = document.getElementById('pengurusForm');
+    const pengurusModalTitle = document.getElementById('pengurusModalTitle');
+    const formPengurusId = document.getElementById('formPengurusId');
+    const formPengurusNama = document.getElementById('formPengurusNama');
+    const formPengurusDepartemen = document.getElementById('formPengurusDepartemen');
+    const formPengurusStatus = document.getElementById('formPengurusStatus');
+    const formPengurusNoHp = document.getElementById('formPengurusNoHp');
+    const formPengurusSekretaris = document.getElementById('formPengurusSekretaris');
+    const formPengurusKetuaDept = document.getElementById('formPengurusKetuaDept');
+    const formPengurusAksesDept = document.getElementById('formPengurusAksesDept');
+    const departemenDatalist = document.getElementById('departemenDatalist');
+
+    const deletePengurusModal = document.getElementById('deletePengurusModal');
+    const deletePengurusCancelBtn = document.getElementById('deletePengurusCancelBtn');
+    const deletePengurusConfirmBtn = document.getElementById('deletePengurusConfirmBtn');
+    const deletePengurusNama = document.getElementById('deletePengurusNama');
+
+    async function loadPengurusList() {
+      if (pengurusTableBody) {
+        pengurusTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data pengurus...</td></tr>`;
+      }
+      if (pengurusCardsMobile) {
+        pengurusCardsMobile.innerHTML = `<div class="text-center py-10 text-wahdah-400 text-sm"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data pengurus...</div>`;
+      }
+
+      try {
+        const res = await gsCall('getPengurusListAdmin', state.adminUserId, state.adminPin);
+        if (!res || !res.success || !Array.isArray(res.data)) {
+          const msg = (res && res.message) ? res.message : 'Gagal memuat data pengurus.';
+          if (pengurusTableBody) pengurusTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-red-500 text-sm">${escapeHtml(msg)}</td></tr>`;
+          if (pengurusCardsMobile) pengurusCardsMobile.innerHTML = `<div class="text-center py-10 text-red-500 text-sm">${escapeHtml(msg)}</div>`;
+          showToast(msg, 'error');
+          return;
+        }
+
+        pengurusState.list = res.data;
+        pengurusState.loaded = true;
+
+        updatePengurusDeptFilters();
+        updatePengurusStats();
+        applyPengurusFilter();
+      } catch (err) {
+        if (pengurusTableBody) pengurusTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-red-500 text-sm">Terjadi kesalahan: ${escapeHtml(err.message)}</td></tr>`;
+        showToast('Terjadi kesalahan: ' + err.message, 'error');
+      }
+    }
+
+    function updatePengurusStats() {
+      const total = pengurusState.list.length;
+      const deptSet = new Set(pengurusState.list.map(p => p.departemen).filter(Boolean));
+      const sekreCount = pengurusState.list.filter(p => Number(p.sekretaris) === 1).length;
+      const ketuaCount = pengurusState.list.filter(p => Number(p.ketua_departemen) === 1).length;
+
+      const statTotal = document.getElementById('statPengurusTotal');
+      const statDept = document.getElementById('statPengurusDept');
+      const statSekre = document.getElementById('statPengurusSekre');
+      const statKetua = document.getElementById('statPengurusKetua');
+
+      if (statTotal) statTotal.textContent = total;
+      if (statDept) statDept.textContent = deptSet.size;
+      if (statSekre) statSekre.textContent = sekreCount;
+      if (statKetua) statKetua.textContent = ketuaCount;
+    }
+
+    function updatePengurusDeptFilters() {
+      const deptSet = new Set(pengurusState.list.map(p => p.departemen).filter(Boolean));
+      const depts = Array.from(deptSet).sort((a, b) => a.localeCompare(b, 'id'));
+
+      if (filterDeptPengurus) {
+        const curVal = filterDeptPengurus.value;
+        filterDeptPengurus.innerHTML = '<option value="">Semua Departemen</option>' +
+          depts.map(d => `<option value="${escapeHtml(d)}" ${d === curVal ? 'selected' : ''}>${escapeHtml(d)}</option>`).join('');
+      }
+
+      if (departemenDatalist) {
+        departemenDatalist.innerHTML = depts.map(d => `<option value="${escapeHtml(d)}"></option>`).join('');
+      }
+    }
+
+    function applyPengurusFilter() {
+      const query = (searchPengurus ? searchPengurus.value : '').trim().toLowerCase();
+      const dept = filterDeptPengurus ? filterDeptPengurus.value : '';
+      const role = filterPeranPengurus ? filterPeranPengurus.value : '';
+
+      pengurusState.filtered = pengurusState.list.filter(p => {
+        if (dept && p.departemen !== dept) return false;
+
+        if (role === 'sekretaris' && Number(p.sekretaris) !== 1) return false;
+        if (role === 'ketua' && Number(p.ketua_departemen) !== 1) return false;
+        if (role === 'has_hp' && !p.no_hp) return false;
+        if (role === 'no_hp' && p.no_hp) return false;
+
+        if (query) {
+          const matchNama = (p.nama || '').toLowerCase().includes(query);
+          const matchHp = (p.no_hp || '').toLowerCase().includes(query);
+          const matchDept = (p.departemen || '').toLowerCase().includes(query);
+          const matchStatus = (p.status || '').toLowerCase().includes(query);
+          if (!matchNama && !matchHp && !matchDept && !matchStatus) return false;
+        }
+
+        return true;
+      });
+
+      pengurusState.page = 1;
+      renderPengurusTable();
+    }
+
+    function renderPengurusTable() {
+      if (!pengurusTableBody || !pengurusCardsMobile) return;
+
+      const total = pengurusState.filtered.length;
+      const pageSize = pengurusState.pageSize;
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (pengurusState.page > totalPages) pengurusState.page = totalPages;
+      if (pengurusState.page < 1) pengurusState.page = 1;
+
+      const startIdx = (pengurusState.page - 1) * pageSize;
+      const pageRows = pengurusState.filtered.slice(startIdx, startIdx + pageSize);
+
+      if (total === 0) {
+        const emptyHtml = `<tr><td colspan="7" class="text-center py-10 text-wahdah-400 text-sm">Tidak ada data pengurus yang cocok dengan filter.</td></tr>`;
+        pengurusTableBody.innerHTML = emptyHtml;
+        pengurusCardsMobile.innerHTML = `<div class="text-center py-10 text-wahdah-400 text-sm">Tidak ada data pengurus yang cocok dengan filter.</div>`;
+        if (pengurusPagination) pengurusPagination.innerHTML = '';
+        return;
+      }
+
+      // Render Desktop Table
+      pengurusTableBody.innerHTML = pageRows.map((p, idx) => {
+        const rowNo = startIdx + idx + 1;
+        const isSekre = Number(p.sekretaris) === 1;
+        const isKetua = Number(p.ketua_departemen) === 1;
+
+        let badges = [];
+        if (isSekre) badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-pen-nib text-[9px]"></i> Sekretaris</span>`);
+        if (isKetua) badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800"><i class="fa-solid fa-user-tie text-[9px]"></i> Ketua Dept</span>`);
+        if (p.akses_departemen) badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-wahdah-100 text-wahdah-700" title="Akses: ${escapeHtml(p.akses_departemen)}"><i class="fa-solid fa-key text-[9px]"></i> Akses Dept</span>`);
+        if (badges.length === 0) badges.push(`<span class="text-xs text-wahdah-300">-</span>`);
+
+        const cleanDigits = (p.no_hp || '').replace(/\D/g, '').replace(/^0+/, '');
+        const hpDisplay = p.no_hp
+          ? `<a href="https://wa.me/62${escapeHtml(cleanDigits)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1 font-mono text-xs"><i class="fa-brands fa-whatsapp text-emerald-600"></i> ${escapeHtml(p.no_hp)}</a>`
+          : `<span class="text-xs text-wahdah-300 italic">(belum ada)</span>`;
+
+        return `
+          <tr class="hover:bg-wahdah-50/40 transition-colors">
+            <td class="px-4 py-3 text-wahdah-400 text-xs">${rowNo}</td>
+            <td class="px-4 py-3">
+              <p class="font-semibold text-wahdah-900">${escapeHtml(p.nama)}</p>
+            </td>
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-wahdah-50 text-wahdah-800 border border-wahdah-200">
+                ${escapeHtml(p.departemen)}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-wahdah-700 text-xs">${escapeHtml(p.status || 'Anggota')}</td>
+            <td class="px-4 py-3">${hpDisplay}</td>
+            <td class="px-4 py-3 text-center">
+              <div class="flex flex-wrap items-center justify-center gap-1">${badges.join('')}</div>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button type="button" onclick="editPengurus(${p.id})" title="Edit Pengurus"
+                  class="w-8 h-8 rounded-lg bg-wahdah-50 hover:bg-wahdah-100 text-wahdah-700 border border-wahdah-200 flex items-center justify-center transition-colors">
+                  <i class="fa-solid fa-pen text-xs"></i>
+                </button>
+                <button type="button" onclick="deletePengurusPrompt(${p.id})" title="Hapus Pengurus"
+                  class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center transition-colors">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render Mobile Cards
+      pengurusCardsMobile.innerHTML = pageRows.map((p) => {
+        const isSekre = Number(p.sekretaris) === 1;
+        const isKetua = Number(p.ketua_departemen) === 1;
+
+        let badges = [];
+        if (isSekre) badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">Sekretaris</span>`);
+        if (isKetua) badges.push(`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800">Ketua Dept</span>`);
+
+        const cleanDigits = (p.no_hp || '').replace(/\D/g, '').replace(/^0+/, '');
+
+        return `
+          <div class="p-3.5 bg-white rounded-xl border border-wahdah-100 shadow-sm space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="font-bold text-wahdah-900 text-sm">${escapeHtml(p.nama)}</p>
+                <p class="text-xs text-wahdah-600 mt-0.5">${escapeHtml(p.departemen)} &bull; <span class="text-wahdah-500">${escapeHtml(p.status || 'Anggota')}</span></p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="editPengurus(${p.id})" class="w-8 h-8 rounded-lg bg-wahdah-50 hover:bg-wahdah-100 text-wahdah-700 flex items-center justify-center">
+                  <i class="fa-solid fa-pen text-xs"></i>
+                </button>
+                <button type="button" onclick="deletePengurusPrompt(${p.id})" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs pt-2 border-t border-wahdah-50">
+              <div>
+                ${p.no_hp
+                  ? `<a href="https://wa.me/62${escapeHtml(cleanDigits)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 inline-flex items-center gap-1 font-mono"><i class="fa-brands fa-whatsapp text-emerald-600"></i> ${escapeHtml(p.no_hp)}</a>`
+                  : `<span class="text-wahdah-300 italic">(belum ada nomor HP)</span>`}
+              </div>
+              <div class="flex gap-1">${badges.join('')}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Render Pagination
+      if (pengurusPagination) {
+        const endIdx = Math.min(startIdx + pageSize, total);
+        pengurusPagination.innerHTML = `
+          <div class="text-xs text-wahdah-500">
+            Menampilkan <span class="font-semibold text-wahdah-800">${startIdx + 1}</span> - <span class="font-semibold text-wahdah-800">${endIdx}</span> dari <span class="font-semibold text-wahdah-800">${total}</span> pengurus
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="pengurusPrevBtn" ${pengurusState.page <= 1 ? 'disabled' : ''}
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-wahdah-200 bg-white hover:bg-wahdah-50 text-wahdah-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+            </button>
+            <span class="text-xs text-wahdah-600 px-2">Hal. ${pengurusState.page} / ${totalPages}</span>
+            <button type="button" id="pengurusNextBtn" ${pengurusState.page >= totalPages ? 'disabled' : ''}
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-wahdah-200 bg-white hover:bg-wahdah-50 text-wahdah-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              Next <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+          </div>
+        `;
+
+        document.getElementById('pengurusPrevBtn')?.addEventListener('click', () => {
+          if (pengurusState.page > 1) {
+            pengurusState.page--;
+            renderPengurusTable();
+          }
+        });
+        document.getElementById('pengurusNextBtn')?.addEventListener('click', () => {
+          if (pengurusState.page < totalPages) {
+            pengurusState.page++;
+            renderPengurusTable();
+          }
+        });
+      }
+    }
+
+    function openCreatePengurusModal() {
+      if (!pengurusModal) return;
+      formPengurusId.value = '';
+      formPengurusNama.value = '';
+      formPengurusDepartemen.value = filterDeptPengurus ? filterDeptPengurus.value : '';
+      formPengurusStatus.value = 'Anggota';
+      formPengurusNoHp.value = '';
+      formPengurusSekretaris.checked = false;
+      formPengurusKetuaDept.checked = false;
+      formPengurusAksesDept.value = '';
+      pengurusModalTitle.textContent = 'Tambah Pengurus Baru';
+
+      pengurusModal.classList.remove('hidden');
+      pengurusModal.classList.add('flex');
+      formPengurusNama.focus();
+    }
+
+    window.editPengurus = function(id) {
+      const p = pengurusState.list.find(item => item.id == id);
+      if (!p || !pengurusModal) return;
+
+      formPengurusId.value = p.id;
+      formPengurusNama.value = p.nama || '';
+      formPengurusDepartemen.value = p.departemen || '';
+      formPengurusStatus.value = p.status || 'Anggota';
+      formPengurusNoHp.value = p.no_hp || '';
+      formPengurusSekretaris.checked = Number(p.sekretaris) === 1;
+      formPengurusKetuaDept.checked = Number(p.ketua_departemen) === 1;
+      formPengurusAksesDept.value = p.akses_departemen || '';
+      pengurusModalTitle.textContent = 'Edit Data Pengurus';
+
+      pengurusModal.classList.remove('hidden');
+      pengurusModal.classList.add('flex');
+      formPengurusNama.focus();
+    };
+
+    function closePengurusModal() {
+      if (!pengurusModal) return;
+      pengurusModal.classList.add('hidden');
+      pengurusModal.classList.remove('flex');
+    }
+
+    async function handlePengurusFormSubmit(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('pengurusModalSaveBtn');
+      const origText = saveBtn ? saveBtn.innerHTML : 'Simpan';
+
+      const id = formPengurusId.value;
+      const data = {
+        nama: formPengurusNama.value.trim(),
+        departemen: formPengurusDepartemen.value.trim(),
+        status: formPengurusStatus.value.trim() || 'Anggota',
+        no_hp: formPengurusNoHp.value.trim(),
+        sekretaris: formPengurusSekretaris.checked ? 1 : 0,
+        ketua_departemen: formPengurusKetuaDept.checked ? 1 : 0,
+        akses_departemen: formPengurusAksesDept.value.trim()
+      };
+
+      if (!data.nama) {
+        showToast('Nama pengurus wajib diisi.', 'error');
+        return;
+      }
+      if (!data.departemen) {
+        showToast('Departemen wajib diisi.', 'error');
+        return;
+      }
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...`;
+      }
+
+      try {
+        let res;
+        if (id) {
+          res = await gsCall('updatePengurusAdmin', state.adminUserId, state.adminPin, parseInt(id, 10), data);
+        } else {
+          res = await gsCall('createPengurusAdmin', state.adminUserId, state.adminPin, data);
+        }
+
+        if (res && res.success) {
+          showToast(res.message || 'Data pengurus berhasil disimpan.', 'success');
+          closePengurusModal();
+          await loadPengurusList();
+        } else {
+          showToast((res && res.message) ? res.message : 'Gagal menyimpan data pengurus.', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan: ' + err.message, 'error');
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = origText;
+        }
+      }
+    }
+
+    window.deletePengurusPrompt = function(id) {
+      const p = pengurusState.list.find(item => item.id == id);
+      if (!p || !deletePengurusModal) return;
+      pengurusState.deleteTargetId = id;
+      if (deletePengurusNama) deletePengurusNama.textContent = p.nama;
+      deletePengurusModal.classList.remove('hidden');
+      deletePengurusModal.classList.add('flex');
+    };
+
+    function closeDeletePengurusModal() {
+      if (!deletePengurusModal) return;
+      deletePengurusModal.classList.add('hidden');
+      deletePengurusModal.classList.remove('flex');
+      pengurusState.deleteTargetId = null;
+    }
+
+    async function executeDeletePengurus() {
+      const id = pengurusState.deleteTargetId;
+      if (!id) return;
+
+      const confirmBtn = document.getElementById('deletePengurusConfirmBtn');
+      const origText = confirmBtn ? confirmBtn.innerHTML : 'Ya, Hapus';
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menghapus...`;
+      }
+
+      try {
+        const res = await gsCall('deletePengurusAdmin', state.adminUserId, state.adminPin, parseInt(id, 10));
+        if (res && res.success) {
+          showToast(res.message || 'Pengurus berhasil dihapus.', 'success');
+          closeDeletePengurusModal();
+          await loadPengurusList();
+        } else {
+          showToast((res && res.message) ? res.message : 'Gagal menghapus pengurus.', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan: ' + err.message, 'error');
+      } finally {
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.innerHTML = origText;
+        }
+      }
+    }
+
+    if (addPengurusBtn) addPengurusBtn.addEventListener('click', openCreatePengurusModal);
+    if (refreshPengurusBtn) refreshPengurusBtn.addEventListener('click', loadPengurusList);
+    if (pengurusModalCloseBtn) pengurusModalCloseBtn.addEventListener('click', closePengurusModal);
+    if (pengurusModalCancelBtn) pengurusModalCancelBtn.addEventListener('click', closePengurusModal);
+    if (pengurusForm) pengurusForm.addEventListener('submit', handlePengurusFormSubmit);
+
+    if (deletePengurusCancelBtn) deletePengurusCancelBtn.addEventListener('click', closeDeletePengurusModal);
+    if (deletePengurusConfirmBtn) deletePengurusConfirmBtn.addEventListener('click', executeDeletePengurus);
+
+    if (searchPengurus) searchPengurus.addEventListener('input', applyPengurusFilter);
+    if (filterDeptPengurus) filterDeptPengurus.addEventListener('change', applyPengurusFilter);
+    if (filterPeranPengurus) filterPeranPengurus.addEventListener('change', applyPengurusFilter);
 
     /* ==========================================================
        8. TOAST
