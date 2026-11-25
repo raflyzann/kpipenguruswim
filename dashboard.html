@@ -234,6 +234,17 @@
         </button>
       </nav>
 
+      <!-- User Card di sidebar -->
+      <div id="sidebarUserCard" class="hidden mx-4 mb-3 p-3 rounded-xl bg-white/5 border border-white/10 items-center justify-between">
+        <div class="min-w-0 pr-2">
+          <p id="sidebarUserName" class="text-xs font-bold truncate text-white leading-tight">Admin</p>
+          <span id="sidebarUserBadge" class="inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1"></span>
+        </div>
+        <button id="sidebarLogoutBtn" type="button" title="Keluar / Ganti Akun" class="w-8 h-8 rounded-lg hover:bg-white/10 text-wahdah-200 hover:text-rose-300 flex items-center justify-center transition-colors shrink-0">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+        </button>
+      </div>
+
       <div class="px-6 py-5 border-t border-white/10 text-[11px] text-wahdah-300">
         &copy; <span id="tahunFooter"></span> Wahdah Islamiyah Makassar
       </div>
@@ -245,14 +256,29 @@
     <div id="mainArea" class="flex-1 flex flex-col min-w-0">
 
       <header
-        class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-wahdah-100 px-4 md:px-8 py-4 flex items-center gap-4 shadow-softer">
-        <button id="hamburgerBtn"
-          class="w-10 h-10 rounded-lg hover:bg-wahdah-50 text-wahdah-700 flex items-center justify-center transition-colors">
-          <i class="fa-solid fa-bars text-lg"></i>
-        </button>
-        <div>
-          <h1 id="pageTitle" class="font-bold text-wahdah-900 text-lg leading-tight">Dashboard Capaian KPI</h1>
-          <p id="pageSubtitle" class="text-wahdah-500 text-xs">Leaderboard & analitik kinerja pengurus</p>
+        class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-wahdah-100 px-4 md:px-8 py-4 flex items-center justify-between gap-4 shadow-softer">
+        <div class="flex items-center gap-4">
+          <button id="hamburgerBtn"
+            class="w-10 h-10 rounded-lg hover:bg-wahdah-50 text-wahdah-700 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <div>
+            <h1 id="pageTitle" class="font-bold text-wahdah-900 text-lg leading-tight">Dashboard Capaian KPI</h1>
+            <p id="pageSubtitle" class="text-wahdah-500 text-xs">Leaderboard & analitik kinerja pengurus</p>
+          </div>
+        </div>
+
+        <!-- Info Pengguna & Tombol Keluar di Header -->
+        <div id="headerUserInfo" class="hidden items-center gap-3">
+          <div class="text-right hidden sm:block">
+            <p id="headerUserName" class="text-xs font-bold text-wahdah-900 leading-tight">Admin</p>
+            <span id="headerUserRoleBadge" class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5">Admin</span>
+          </div>
+          <button id="logoutBtn" type="button" title="Keluar / Ganti Akun"
+            class="px-3 py-1.5 rounded-xl border border-wahdah-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-wahdah-600 text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span class="hidden sm:inline">Keluar</span>
+          </button>
         </div>
       </header>
 
@@ -776,7 +802,8 @@
         <i class="fa-solid fa-lock text-lg"></i>
       </div>
       <h3 class="font-bold text-wahdah-900 text-lg mb-1 text-center">Akses Dashboard</h3>
-      <p class="text-wahdah-500 text-sm mb-4 text-center">Masukkan User ID dan PIN</p>
+      <p class="text-wahdah-500 text-sm mb-1 text-center">Masukkan User ID dan PIN</p>
+      <p class="text-[11px] text-wahdah-400 mb-4 text-center">Masuk sebagai <strong class="text-wahdah-600">Admin</strong> atau <strong class="text-wahdah-600">Super Admin</strong></p>
 
       <div class="mb-3">
         <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">User ID</label>
@@ -1043,7 +1070,8 @@
     };
 
     const DUMMY_ADMIN = [
-      { userId: 'admin', pin: '654321' }
+      { userId: 'admin', pin: '654321', role: 'admin' },
+      { userId: 'superadmin', pin: '123456', role: 'super admin' }
     ];
 
     let DUMMY_TRANSAKSI = [];
@@ -1073,7 +1101,11 @@
     }
 
     const LOCAL_FALLBACK = {
-      validateAdminLogin: (userId, pin) => DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin),
+      validateAdminLogin: (userId, pin) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found) return false;
+        return { valid: true, role: found.role || 'admin', userId: found.userId };
+      },
       getDepartemenList: () => [...new Set(DUMMY_PENGURUS.map(p => p.departemen))].sort((a, b) => a.localeCompare(b)),
       getRekapRapatDepartemen: (userId, pin, startDateStr, endDateStr) => {
         if (!DUMMY_ADMIN.some(a => a.userId === userId && a.pin === pin)) {
@@ -1248,9 +1280,17 @@
         };
       },
       updatePengaturanLimit: (userId, pin, id, maksMinggu, maksBulan) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found || found.role !== 'super admin') {
+          return { success: false, message: 'Akses ditolak. Fitur ini hanya untuk Super Admin.' };
+        }
         return { success: true, message: 'Pengaturan limit berhasil diperbarui (preview mode).' };
       },
       getPengurusListAdmin: (userId, pin) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found || found.role !== 'super admin') {
+          return { success: false, message: 'Akses ditolak. Fitur ini hanya untuk Super Admin.' };
+        }
         return {
           success: true,
           data: DUMMY_PENGURUS.map((p, i) => ({
@@ -1266,6 +1306,10 @@
         };
       },
       createPengurusAdmin: (userId, pin, data) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found || found.role !== 'super admin') {
+          return { success: false, message: 'Akses ditolak. Fitur ini hanya untuk Super Admin.' };
+        }
         const newId = DUMMY_PENGURUS.length + 1;
         DUMMY_PENGURUS.push({
           nama: data.nama,
@@ -1279,9 +1323,17 @@
         return { success: true, message: 'Pengurus baru berhasil ditambahkan (preview mode).', id: newId };
       },
       updatePengurusAdmin: (userId, pin, id, data) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found || found.role !== 'super admin') {
+          return { success: false, message: 'Akses ditolak. Fitur ini hanya untuk Super Admin.' };
+        }
         return { success: true, message: 'Data pengurus berhasil diperbarui (preview mode).' };
       },
       deletePengurusAdmin: (userId, pin, id) => {
+        const found = DUMMY_ADMIN.find(a => a.userId === userId && a.pin === pin);
+        if (!found || found.role !== 'super admin') {
+          return { success: false, message: 'Akses ditolak. Fitur ini hanya untuk Super Admin.' };
+        }
         return { success: true, message: 'Pengurus berhasil dihapus (preview mode).' };
       }
     };
@@ -1292,7 +1344,8 @@
     const state = {
       dashboardUnlocked: false,
       adminUserId: null,
-      adminPin: null
+      adminPin: null,
+      adminRole: null
     };
 
     document.getElementById('tahunFooter').textContent = new Date().getFullYear();
@@ -1379,6 +1432,14 @@
       // Navigasi hanya efektif setelah login berhasil. lockedNotice tetap
       // ditangani terpisah oleh alur PIN modal (lihat submitPin()).
       if (!state.dashboardUnlocked) return;
+
+      // Proteksi hak akses role admin:
+      // Admin HANYA bisa mengakses: dashboard, rekapRapat, riwayatRapat, dan riwayat
+      if (state.adminRole === 'admin' && (view === 'pengurus' || view === 'limit')) {
+        showToast('Akses ditolak: Menu ini hanya dapat diakses oleh Super Admin.', 'error');
+        goToView('dashboard');
+        return;
+      }
 
       viewDashboardSection.classList.add('hidden');
       viewRiwayatSection.classList.add('hidden');
@@ -1511,16 +1572,34 @@
         pinSpinner.remove();
         pinSubmitBtnText.textContent = 'Masuk';
       }
-      if (valid) {
+      const isSuccess = Boolean(valid && (valid === true || valid.valid === true));
+
+      if (isSuccess) {
         state.dashboardUnlocked = true;
         state.adminUserId = userId;
         state.adminPin = pin;
+
+        // Tentukan role: default 'admin' jika tidak ditentukan, atau 'super admin'
+        let userRole = 'admin';
+        if (valid && typeof valid === 'object' && valid.role) {
+          const r = String(valid.role).toLowerCase().trim();
+          userRole = (r === 'super admin' || r === 'superadmin') ? 'super admin' : 'admin';
+        }
+        state.adminRole = userRole;
+
         closePinModal();
         lockedNotice.classList.add('hidden');
+
+        // Terapkan pembatasan hak akses tampilan berdasarkan role
+        applyRolePermissions(state.adminRole);
+
         viewDashboard.classList.remove('hidden');
         viewDashboard.classList.remove('view-fade'); void viewDashboard.offsetWidth; viewDashboard.classList.add('view-fade');
         setActiveNav(navDashboard);
         renderDashboard();
+
+        showToast('Berhasil masuk sebagai ' + (state.adminRole === 'super admin' ? 'Super Admin' : 'Admin') + '.', 'success');
+
         // Daftar departemen dimuat di background untuk mengisi filter di tab
         // Riwayat dan Leaderboard, supaya saat pertama kali dibuka filternya sudah siap.
         gsCall('getDepartemenList').then(list => {
@@ -1535,6 +1614,109 @@
         pinInput.focus();
       }
     }
+
+    function applyRolePermissions(role) {
+      const isSuperAdmin = (role === 'super admin');
+
+      // Admin HANYA bisa mengakses:
+      // 1. Dashboard Capaian KPI (navDashboard)
+      // 2. Rekap Rapat Departemen (navRekapRapat)
+      // 3. Riwayat Rapat Departemen (navRiwayatRapat)
+      // 4. Riwayat Inputan Data (navRiwayat)
+      // Super Admin bisa mengakses seluruh menu (+ Data Pengurus & Pengaturan Limit)
+      if (navPengurus) {
+        if (isSuperAdmin) {
+          navPengurus.classList.remove('hidden');
+        } else {
+          navPengurus.classList.add('hidden');
+        }
+      }
+      if (navLimit) {
+        if (isSuperAdmin) {
+          navLimit.classList.remove('hidden');
+        } else {
+          navLimit.classList.add('hidden');
+        }
+      }
+
+      // Update identitas di header
+      const headerUserInfo = document.getElementById('headerUserInfo');
+      const headerUserName = document.getElementById('headerUserName');
+      const headerUserRoleBadge = document.getElementById('headerUserRoleBadge');
+      if (headerUserInfo) {
+        headerUserInfo.classList.remove('hidden');
+        headerUserInfo.classList.add('flex');
+      }
+      if (headerUserName) {
+        headerUserName.textContent = state.adminUserId || 'Admin';
+      }
+      if (headerUserRoleBadge) {
+        if (isSuperAdmin) {
+          headerUserRoleBadge.className = 'inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300';
+          headerUserRoleBadge.innerHTML = '<i class="fa-solid fa-shield-halved text-[9px]"></i> Super Admin';
+        } else {
+          headerUserRoleBadge.className = 'inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-wahdah-100 text-wahdah-800 border border-wahdah-200';
+          headerUserRoleBadge.innerHTML = '<i class="fa-solid fa-user-shield text-[9px]"></i> Admin';
+        }
+      }
+
+      // Update identitas di sidebar
+      const sidebarUserCard = document.getElementById('sidebarUserCard');
+      const sidebarUserName = document.getElementById('sidebarUserName');
+      const sidebarUserBadge = document.getElementById('sidebarUserBadge');
+      if (sidebarUserCard) {
+        sidebarUserCard.classList.remove('hidden');
+        sidebarUserCard.classList.add('flex');
+      }
+      if (sidebarUserName) {
+        sidebarUserName.textContent = state.adminUserId || 'Admin';
+      }
+      if (sidebarUserBadge) {
+        if (isSuperAdmin) {
+          sidebarUserBadge.className = 'inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30 mt-1';
+          sidebarUserBadge.textContent = 'Super Admin';
+        } else {
+          sidebarUserBadge.className = 'inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold bg-white/10 text-wahdah-200 border border-white/20 mt-1';
+          sidebarUserBadge.textContent = 'Admin';
+        }
+      }
+    }
+
+    function logoutAdmin() {
+      state.dashboardUnlocked = false;
+      state.adminUserId = null;
+      state.adminPin = null;
+      state.adminRole = null;
+
+      viewDashboardSection.classList.add('hidden');
+      viewRiwayatSection.classList.add('hidden');
+      viewRekapRapatSection.classList.add('hidden');
+      viewRiwayatRapatSection.classList.add('hidden');
+      if (viewPengurusSection) viewPengurusSection.classList.add('hidden');
+      if (viewLimitSection) viewLimitSection.classList.add('hidden');
+
+      const headerUserInfo = document.getElementById('headerUserInfo');
+      const sidebarUserCard = document.getElementById('sidebarUserCard');
+      if (headerUserInfo) {
+        headerUserInfo.classList.remove('flex');
+        headerUserInfo.classList.add('hidden');
+      }
+      if (sidebarUserCard) {
+        sidebarUserCard.classList.remove('flex');
+        sidebarUserCard.classList.add('hidden');
+      }
+
+      lockedNotice.classList.remove('hidden');
+      pageTitle.textContent = 'Dashboard Capaian KPI';
+      pageSubtitle.textContent = 'Leaderboard & analitik kinerja pengurus';
+      openPinModal();
+      showToast('Anda telah keluar dari sesi admin.', 'info');
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', logoutAdmin);
+    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', logoutAdmin);
 
     // Buka modal login otomatis begitu halaman dimuat, karena dashboard.html
     // selalu mulai dalam kondisi terkunci.
@@ -1585,6 +1767,11 @@
         state.dashboardUnlocked = false;
         state.adminUserId = null;
         state.adminPin = null;
+        state.adminRole = null;
+        const headerUserInfo = document.getElementById('headerUserInfo');
+        const sidebarUserCard = document.getElementById('sidebarUserCard');
+        if (headerUserInfo) { headerUserInfo.classList.remove('flex'); headerUserInfo.classList.add('hidden'); }
+        if (sidebarUserCard) { sidebarUserCard.classList.remove('flex'); sidebarUserCard.classList.add('hidden'); }
         viewDashboard.classList.add('hidden');
         lockedNotice.classList.remove('hidden');
         openPinModal();
