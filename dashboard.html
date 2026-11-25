@@ -266,18 +266,6 @@
           </div>
         </div>
 
-        <!-- Info Pengguna & Tombol Keluar di Header -->
-        <div id="headerUserInfo" class="hidden items-center gap-3">
-          <div class="text-right hidden sm:block">
-            <p id="headerUserName" class="text-xs font-bold text-wahdah-900 leading-tight">Admin</p>
-            <span id="headerUserRoleBadge" class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5">Admin</span>
-          </div>
-          <button id="logoutBtn" type="button" title="Keluar / Ganti Akun"
-            class="px-3 py-1.5 rounded-xl border border-wahdah-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 text-wahdah-600 text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
       </header>
 
       <main class="flex-1 p-4 md:p-8">
@@ -1636,27 +1624,6 @@
         }
       }
 
-      // Update identitas di header
-      const headerUserInfo = document.getElementById('headerUserInfo');
-      const headerUserName = document.getElementById('headerUserName');
-      const headerUserRoleBadge = document.getElementById('headerUserRoleBadge');
-      if (headerUserInfo) {
-        headerUserInfo.classList.remove('hidden');
-        headerUserInfo.classList.add('flex');
-      }
-      if (headerUserName) {
-        headerUserName.textContent = state.adminUserId || 'Admin';
-      }
-      if (headerUserRoleBadge) {
-        if (isSuperAdmin) {
-          headerUserRoleBadge.className = 'inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300';
-          headerUserRoleBadge.innerHTML = '<i class="fa-solid fa-shield-halved text-[9px]"></i> Super Admin';
-        } else {
-          headerUserRoleBadge.className = 'inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-wahdah-100 text-wahdah-800 border border-wahdah-200';
-          headerUserRoleBadge.innerHTML = '<i class="fa-solid fa-user-shield text-[9px]"></i> Admin';
-        }
-      }
-
       // Tampilkan tombol keluar di sidebar
       const sidebarUserCard = document.getElementById('sidebarUserCard');
       if (sidebarUserCard) {
@@ -1677,12 +1644,6 @@
       if (viewPengurusSection) viewPengurusSection.classList.add('hidden');
       if (viewLimitSection) viewLimitSection.classList.add('hidden');
 
-      const headerUserInfo = document.getElementById('headerUserInfo');
-      const sidebarUserCard = document.getElementById('sidebarUserCard');
-      if (headerUserInfo) {
-        headerUserInfo.classList.remove('flex');
-        headerUserInfo.classList.add('hidden');
-      }
       if (sidebarUserCard) {
         sidebarUserCard.classList.remove('flex');
         sidebarUserCard.classList.add('hidden');
@@ -1694,8 +1655,6 @@
       showToast('Anda telah keluar dari sesi admin.', 'info');
     }
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.addEventListener('click', logoutAdmin);
     const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
     if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', logoutAdmin);
 
@@ -1749,9 +1708,6 @@
         state.adminUserId = null;
         state.adminPin = null;
         state.adminRole = null;
-        const headerUserInfo = document.getElementById('headerUserInfo');
-        const sidebarUserCard = document.getElementById('sidebarUserCard');
-        if (headerUserInfo) { headerUserInfo.classList.remove('flex'); headerUserInfo.classList.add('hidden'); }
         if (sidebarUserCard) { sidebarUserCard.classList.add('hidden'); }
         viewDashboard.classList.add('hidden');
         lockedNotice.classList.remove('hidden');
