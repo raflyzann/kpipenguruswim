@@ -234,14 +234,12 @@
         </button>
       </nav>
 
-      <!-- User Card di sidebar -->
-      <div id="sidebarUserCard" class="hidden mx-4 mb-3 p-3 rounded-xl bg-white/5 border border-white/10 items-center justify-between">
-        <div class="min-w-0 pr-2">
-          <p id="sidebarUserName" class="text-xs font-bold truncate text-white leading-tight">Admin</p>
-          <span id="sidebarUserBadge" class="inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold mt-1"></span>
-        </div>
-        <button id="sidebarLogoutBtn" type="button" title="Keluar / Ganti Akun" class="w-8 h-8 rounded-lg hover:bg-white/10 text-wahdah-200 hover:text-rose-300 flex items-center justify-center transition-colors shrink-0">
-          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+      <!-- Tombol Keluar di sidebar (hanya tampil setelah login) -->
+      <div id="sidebarUserCard" class="hidden px-4 pb-2 pt-1 border-t border-white/10">
+        <button id="sidebarLogoutBtn" type="button" aria-label="Keluar"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-wahdah-100 hover:bg-white/10 transition-colors text-left">
+          <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center text-rose-400"></i>
+          <span>Keluar / Logout</span>
         </button>
       </div>
 
@@ -802,8 +800,7 @@
         <i class="fa-solid fa-lock text-lg"></i>
       </div>
       <h3 class="font-bold text-wahdah-900 text-lg mb-1 text-center">Akses Dashboard</h3>
-      <p class="text-wahdah-500 text-sm mb-1 text-center">Masukkan User ID dan PIN</p>
-      <p class="text-[11px] text-wahdah-400 mb-4 text-center">Masuk sebagai <strong class="text-wahdah-600">Admin</strong> atau <strong class="text-wahdah-600">Super Admin</strong></p>
+      <p class="text-wahdah-500 text-sm mb-4 text-center">Masukkan User ID dan PIN</p>
 
       <div class="mb-3">
         <label class="block text-xs font-semibold text-wahdah-700 mb-1.5">User ID</label>
@@ -1660,25 +1657,10 @@
         }
       }
 
-      // Update identitas di sidebar
+      // Tampilkan tombol keluar di sidebar
       const sidebarUserCard = document.getElementById('sidebarUserCard');
-      const sidebarUserName = document.getElementById('sidebarUserName');
-      const sidebarUserBadge = document.getElementById('sidebarUserBadge');
       if (sidebarUserCard) {
         sidebarUserCard.classList.remove('hidden');
-        sidebarUserCard.classList.add('flex');
-      }
-      if (sidebarUserName) {
-        sidebarUserName.textContent = state.adminUserId || 'Admin';
-      }
-      if (sidebarUserBadge) {
-        if (isSuperAdmin) {
-          sidebarUserBadge.className = 'inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold bg-amber-400/20 text-amber-300 border border-amber-400/30 mt-1';
-          sidebarUserBadge.textContent = 'Super Admin';
-        } else {
-          sidebarUserBadge.className = 'inline-block text-[10px] px-2 py-0.5 rounded-full font-semibold bg-white/10 text-wahdah-200 border border-white/20 mt-1';
-          sidebarUserBadge.textContent = 'Admin';
-        }
       }
     }
 
@@ -1705,7 +1687,6 @@
         sidebarUserCard.classList.remove('flex');
         sidebarUserCard.classList.add('hidden');
       }
-
       lockedNotice.classList.remove('hidden');
       pageTitle.textContent = 'Dashboard Capaian KPI';
       pageSubtitle.textContent = 'Leaderboard & analitik kinerja pengurus';
@@ -1771,7 +1752,7 @@
         const headerUserInfo = document.getElementById('headerUserInfo');
         const sidebarUserCard = document.getElementById('sidebarUserCard');
         if (headerUserInfo) { headerUserInfo.classList.remove('flex'); headerUserInfo.classList.add('hidden'); }
-        if (sidebarUserCard) { sidebarUserCard.classList.remove('flex'); sidebarUserCard.classList.add('hidden'); }
+        if (sidebarUserCard) { sidebarUserCard.classList.add('hidden'); }
         viewDashboard.classList.add('hidden');
         lockedNotice.classList.remove('hidden');
         openPinModal();
